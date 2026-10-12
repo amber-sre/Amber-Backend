@@ -1,29 +1,27 @@
 <div align="center">
 
 # ⚡ AMBER
-### Autonomous Incident Remediation & Deterministic SRE Engine
+### Autonomous Sovereign SRE & Universal Infrastructure Engine
 
 <p align="center">
   <strong>When production catches fire, Amber brings the system back to calm.</strong><br>
-  Deterministic incident detection, root-cause analysis, and verified remediation — built to act when your team can’t.
+  24x7 Sovereign Sentinel surveillance, zero-sleep anomaly detection, smart log noise shredding, and verified remediation — built to act when your team can’t.
 </p>
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-d97809?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110%2B-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![LangGraph](https://img.shields.io/badge/LangGraph-Multi--Agent-1c1917?style=for-the-badge&logo=langchain&logoColor=facc15)](https://github.com/langchain-ai/langgraph)
-[![Redis](https://img.shields.io/badge/Redis-7%20Streams-dc2626?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io)
-[![Database](https://img.shields.io/badge/Database-Embedded%20SQLite%20(Zero--Setup)-003B57?style=for-the-badge&logo=sqlite&logoColor=white)](https://sqlite.org)
-[![Docker](https://img.shields.io/badge/Docker%20Compose-5%20Containers-2496ed?style=for-the-badge&logo=docker&logoColor=white)](https://docker.com)
-[![Cloudflare](https://img.shields.io/badge/Edge%20Platform-Cloudflare%20Workers-f38020?style=for-the-badge&logo=cloudflare&logoColor=white)](https://ambersre.xyz)
-[![Telegram](https://img.shields.io/badge/Telegram%20Bot-%40ambersre__alert__bot-229ED9?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/ambersre_alert_bot)
+[![Tests](https://img.shields.io/badge/Pytest-84%20Passed-10b981?style=for-the-badge&logo=pytest&logoColor=white)](https://pytest.org)
+[![Universal Infra](https://img.shields.io/badge/Orchestrators-K8s%20%7C%20Docker%20%7C%20ECS%20%7C%20Nomad%20%7C%20Systemd-6366f1?style=for-the-badge)](https://ambersre.xyz)
+[![Sentinel](https://img.shields.io/badge/Sentinel-24%2F7%20Zero--Sleep%20Heartbeat-ef4444?style=for-the-badge)](https://ambersre.xyz)
 
 <br>
 
 <p align="center">
   <a href="https://ambersre.xyz"><strong>Explore Web Platform »</strong></a> ·
-  <a href="https://ambersre.xyz/community"><strong>Community Setup Guide »</strong></a> ·
-  <a href="https://t.me/ambersre_alert_bot"><strong>Try Telegram Bot »</strong></a> ·
-  <a href="#-quickstart"><strong>Quickstart »</strong></a>
+  <a href="#-quickstart"><strong>Community Setup »</strong></a> ·
+  <a href="#-amber-cli-command-reference"><strong>Amber CLI Reference »</strong></a> ·
+  <a href="#-universal-infrastructure-engine"><strong>Universal Infra Matrix »</strong></a>
 </p>
 
 </div>
@@ -36,189 +34,142 @@
 
 ---
 
-## 🛠️ Complete Tech Stack Matrix
+## 🌟 What Makes Amber Sovereign? (Amber vs All SRE)
 
-Amber is engineered as a resilient, single-tenant, in-VPC multi-container cluster. All components are strictly decoupled to guarantee sub-second webhook ingestion even during catastrophic cluster cascading failures.
+Most DevOps tools fall into two traps: they are either **passive graph viewers** (like Datadog/New Relic) that bill you thousands of dollars to store routine 200 OK log garbage, or **noisy alert dispatchers** (like PagerDuty) that wake up engineers for temporary 5-second glitches.
+
+Amber is the **complete autonomous replacement**:
+1. **Sovereign Ingestion & Sentinel Daemon:** 24x7 in-VPC heartbeat monitor across containers, databases, and microservices. Zero third-party webhooks required.
+2. **Noise Filter & Flapping Shield:** Automatically silences transient glitches (< 15s spikes) and consolidates crashing container flaps into a single actionable incident.
+3. **Smart Blackbox Log Pruner:** Safe-by-default (preserves 100% of logs). When enabled via `amber log-pruner enable`, it destroys 95%+ of routine 200 OK / heartbeat noise while freezing a surgical **±120s flight recorder crash window**.
+4. **Universal Infrastructure Engine:** Zero-config auto-detection for **Kubernetes, Docker, Docker Swarm, AWS ECS, HashiCorp Nomad, and Linux Systemd**.
+5. **Deterministic Remediation:** Sub-60s automated rollbacks, pod recreations, and PostgreSQL hanging connection pool terminations.
+
+---
+
+## 🛠️ Complete Tech Stack Matrix
 
 | Layer | Technology | Role & Architecture Rationale |
 | :--- | :--- | :--- |
-| **API Gateway** | **FastAPI + Uvicorn + Pydantic v2** | High-throughput asynchronous webhook ingestion (`<50ms` ACK) from PagerDuty, Datadog, Prometheus, and Sentry. |
-| **Event Stream Buffer** | **Redis 7 (Alpine) Streams** | Sliding-window alert storm deduplication, token revocation blacklists, and worker event queues (0.00% packet loss). |
-| **AI Reasoning Engine** | **LangGraph Multi-Agent Mesh** | Stateful graph orchestration: Triage Node (`<3s` latency), Hybrid RAG Node (Dense + BM25), and Investigation Node. |
-| **LLM Inference** | **Ollama / vLLM / Cloud APIs** | **Air-gapped local-first inference** via Ollama (Qwen 2.5 Coder, Llama 3.3) or BYOK cloud APIs (Claude 3.7 Sonnet, GPT-4o, Gemini 2.5 Flash). |
-| **Database & Audit Store** | **SQLite (Embedded Zero-Config Default)** | Embedded SQLite (`amber.db`) requiring **0 database installation or external setup**. Auto-creates schema on boot. Optional PostgreSQL for enterprise multi-container deployments. |
-| **Mobile HITL Mesh** | **Dedicated Python Bot Worker** | Singleton worker polling `@ambersre_alert_bot`, delivering 1-click inline mobile approvals (`approve:<id>` / `reject:<id>`). |
-| **Slack Integration** | **Slack Block Kit + Deep Proof** | Rich interactive incident triage cards with diagnostic diffs and expandable proof modals. |
-| **Web Edge Dashboard** | **React 19 + Vite + Tailwind + Framer Motion** | Global edge-rendered console on Cloudflare Workers with cryptographic HMAC verification inspection. |
-
----
-
-## 🔒 Enterprise Privacy & Air-Gapped Security Architecture
-
-> [!IMPORTANT]
-> ### 🛡️ Amber's Core Privacy Thesis: **Your Production Data Never Leaves Your VPC**
-> Amber operates as a **single-tenant software appliance** deployed directly inside your private AWS VPC, GCP project, Azure VNet, or bare-metal Kubernetes cluster.
-
-<div style="background-color: #0c0a09; color: #FAF8F5; border-left: 6px solid #d97809; padding: 18px 24px; border-radius: 8px; margin: 16px 0;">
-
-* **🔐 100% In-VPC Ingestion & Diagnostics:** Ingestion, log scrubbing, metric queries, and diagnostic correlation execute entirely in customer-owned memory. No stack traces or customer data cross into a multi-tenant SaaS vendor environment.
-* **📦 Air-Gapped Local LLM Runtime:** Run 100% offline with **Ollama** or **vLLM** hosted inside your VPC. Zero outbound external API traffic is required for full incident triage and runbook synthesis.
-* **🚫 Zero AI Model Training Guarantee:** Customer error logs, database metrics, configuration files, and internal runbooks are **never** used to train, retrain, or calibrate public or commercial AI models.
-* **🔑 Cryptographic SHA-256 Payload Binding:** Every mutating action produces an immutable single-use token:
-  $$\text{Approval Token} = \text{HMAC-SHA256}(\text{Tool Name} \parallel \text{Canonical JSON Arguments} \parallel \text{TTL})$$
-  Any tampering with tool parameters automatically invalidates the cryptographic signature.
-* **🛡️ Offline Ed25519 License Validation:** Zero DRM phone-home network calls. Commercial and community nodes run air-gapped without requiring outbound connection to Amber license servers.
-* **🛑 Instant SRE Kill-Switch:** Master emergency switch (`POST /api/v1/settings/kill-switch`) immediately downgrades all workers to Read-Only Observation Mode across all threads in $\le 250\text{ ms}$.
-
-</div>
-
----
-
-## ⚡ From Alert to Recovery in 4 Deterministic Steps
-
-<p align="center">
-  <img src="docs/images/amber-how-it-works.png" alt="Amber Incident Remediation Loop" width="100%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);" />
-</p>
-
-1. **Ingest & Fingerprint (`<80ms`):** Ingests webhook storms from Datadog, Prometheus, or PagerDuty, groups cascading alert noise via sliding-window hash deduplication, and creates a unified incident context.
-2. **Safe Real-Cluster Diagnosis (`<3s`):** Queries live Kubernetes container events, Prometheus metrics, and Postgres connection states using strictly read-only allowlisted diagnostic probes.
-3. **Sovereign Human Approval (10m TTL):** If a high-risk mutation is required (e.g., rolling back a bad deployment or terminating hanging queries), Amber generates a SHA-256 bound card dispatched to **Telegram, Slack, and Web**.
-4. **Verified Recovery & Post-Mortem:** Executes allowlisted fix, polls cluster readiness probes for 45s to verify health convergence, automatically rolls back if health probes fail, and compiles an audit-ready Markdown post-mortem.
-
----
-
-## 📱 Omni-Channel Approvals & Live Action Simulator
-
-<p align="center">
-  <img src="docs/images/amber-simulator.png" alt="Amber Action Simulator - Desktop Slack and Mobile Telegram" width="100%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);" />
-</p>
-
-### Interactive Mobile Incident Channels:
-- **Telegram Bot (`@ambersre_alert_bot`):** Full inline button support (`✓ Approve (2.4s MTTR)` / `✗ Reject`). Interactive bot commands:
-  - `/status` — Real-time health check of API, database (SQLite/Postgres), and Redis buffer.
-  - `/incidents` — View the 5 most recent production incidents and live statuses.
-  - `/pending` — Inspect all high-risk mutations currently awaiting cryptographic approval.
-  - `/approve <id>` — Cryptographically sign and execute an action.
-  - `/reject <id>` — Dismiss action and halt execution.
-  - `/simulate` — Trigger an instant P0 connection pool saturation simulation.
-- **Slack Block Kit:** Interactive cards with deep proof drawers, live diagnostic diffs, and audit logging.
+| **Sovereign Sentinel** | **24x7 Async Heartbeat Daemon** | Continuous infrastructure health probes, PostgreSQL pool saturation monitoring, and zero-webhook LangGraph dispatch. |
+| **Noise & Log Filter** | **Transient Shield + Blackbox Pruner** | Filters temporary metric glitches, suppresses flapping alert storms, and captures surgical error snapshots. |
+| **Universal Infra** | **Multi-Orchestrator Adapter Engine** | Auto-detects runtime: native drivers for K8s (API client), Docker/Swarm (`docker.sock`), AWS ECS, Nomad, and Systemd. |
+| **AI Reasoning Engine**| **LangGraph Multi-Agent Mesh** | Stateful graph orchestration: Triage Node (`<3s` latency), Hybrid RAG Node (Runbooks), and Investigation Node. |
+| **LLM Inference** | **Local Ollama + Hybrid Cloud BYOK** | Local-first inference (Qwen 2.5 Coder, DeepSeek-R1) with optional secondary consensus (Claude 3.5 Sonnet, GPT-4o, Gemini). |
+| **Database Remediation**| **Async PostgreSQL Driver** | Direct connection pool inspection (`pg_stat_activity`), lock detection, and hanging PID termination. |
+| **Control CLI** | **`amber` CLI (Python Core)** | Single-command management: interactive setup wizards, log pruner toggling, and live system status dashboard. |
 
 ---
 
 ## 🚀 Quickstart
 
-### Option A: Community Edition (1-Line Quickstart)
+### Option A: Community Edition (Interactive Animated Wizard)
 
-Deploy the fully-functional Amber Community Edition in under 60 seconds on any Linux, EC2, or Kubernetes worker node:
+Deploy the fully-functional Amber Community Edition on any Linux host, VPS, or Kubernetes node:
 
 ```bash
-curl -fsSL https://ambersre.xyz/community.sh | bash
+amber community setup
+# or run directly via:
+python scripts/setup_community.py
 ```
 
-> **No license key required.** Free forever for up to **50 Nodes, 15 Services, and 1,000 alerts/month**.  
-> **Zero database setup needed.** Operates on embedded SQLite (`amber.db`) out-of-the-box with auto-created schemas.
+**The Interactive Community Setup Wizard features:**
+* 🎬 **Animated ASCII Startup:** Amber SRE kernel initialization animation.
+* 📦 **Dependency Checklist with Live Progress:** Audits Python, database drivers, orchestrator core, and local Ollama engine.
+* 👤 **Operator Profile:** Collects Name, Email, VPC Name, and Startup Project Name.
+* 🤖 **Interactive Arrow-Key Model Selector:** Choose between `qwen2.5-coder:1.5b`, `qwen2.5-coder:7b`, `deepseek-r1:8b`, or `qwen2.5-coder:14b`.
+* ⭐ **GitHub Star Hook:** Automatically opens the Amber backend repository for starring while your AI model downloads in the background.
+* 🔒 **Community Quota:** Free forever for up to **3 Managed Nodes**.
 
 ---
 
-### Option B: Multi-Container Production Stack (Docker Compose)
+### Option B: Commercial Edition (Enterprise Cryptographic Wizard)
 
-Launch all 5 containerized microservices locally or in your VPC:
+For production fleets, multi-cluster VPCs, and unlimited node deployments:
 
 ```bash
-# 1. Clone repository
-git clone https://github.com/himanshu-xyz-1/Amber-Backend.git
-cd Amber-Backend
-
-# 2. Configure environment
-cp .env.example .env
-
-# 3. Boot all microservices
-docker compose up -d
+amber commercial setup
+# or run directly via:
+python scripts/setup_enterprise.py
 ```
 
-Verify service status:
-```bash
-docker compose ps
-```
-
-```text
-NAME                     IMAGE                  STATUS
-amber-postgres           pgvector/pgvector:pg16 Up (healthy)   0.0.0.0:5432->5432/tcp
-amber-redis              redis:7-alpine         Up (healthy)   0.0.0.0:6379->6379/tcp
-amber-backend            amber-backend          Up (healthy)   0.0.0.0:8000->8000/tcp
-amber-telegram-bot       amber-backend          Up             (polling @ambersre_alert_bot)
-```
-
-View live multi-container logs:
-```bash
-docker compose logs -f amber-backend amber-telegram-bot
-```
+**The Enterprise Commercial Wizard features:**
+* 🔑 **Single-Use Cryptographic License Verification:** Activates Ed25519-signed license keys (`amb_live_...`), hardware-binds to machine, and displays plan validity.
+* ⚡ **Dual-Screen Background Download:** Local model downloads in the background while you configure secondary keys.
+* ☁️ **Hybrid Cloud AI Option:** Interactive prompt to configure Claude 3.5 Sonnet, GPT-4o, or Gemini 1.5 Pro for hybrid multi-agent consensus.
+* 🗄️ **Database URL Setup:** Interactive prompt with smooth backspace/empty skip to connect direct PostgreSQL auto-healing.
+* 🚀 **Unlimited Capacity:** All nodes unlocked, multi-cloud ready, and 24/7 dedicated SRE SLA.
 
 ---
 
-### Option C: Interactive Setup Wizard
+## 💻 Amber CLI Command Reference
 
-Run the interactive terminal wizard to configure Ollama models, cloud API keys, and notification channels:
+Amber comes with a dedicated command-line interface installed in your PATH:
 
-```bash
-python scripts/setup_wizard.py
-```
+| Command | Description |
+| :--- | :--- |
+| `amber status` | Displays full Amber Sovereign SRE Dashboard (Sentinel status, active provider, pruner state, kill-switch). |
+| `amber community setup` | Runs the interactive Community Edition onboarding wizard. |
+| `amber commercial setup` | Runs the interactive Enterprise Commercial onboarding wizard. |
+| `amber log-pruner enable` | **Engages Smart Noise Shredder:** Auto-purges routine 200 OKs and health pings, saving ~95% log storage. |
+| `amber log-pruner disable` | **Reverts to Safe Default:** Preserves 100% of all incoming logs without deletion. |
+| `amber log-pruner status` | Inspects current pruner statistics, purged line count, and estimated space saved. |
+
+---
+
+## 🌐 Universal Infrastructure Engine Matrix
+
+Amber automatically detects your hosting environment on boot and binds the appropriate orchestrator driver:
+
+| Environment | Supported Actions | Execution Mechanism |
+| :--- | :--- | :--- |
+| **Kubernetes (K8s & K3s)** | Pod log extraction, pod recreation, rollout restart, deployment rollback | Official Kubernetes CoreV1 & AppsV1 API Client |
+| **Docker & Docker Swarm** | Container logs, container restart, swarm rolling update, swarm service rollback | Unix Socket `/var/run/docker.sock` / Docker CLI |
+| **AWS ECS & Fargate** | CloudWatch log streaming, task replacement, force new deployment rollout | AWS ECS API / CloudWatch Streams |
+| **HashiCorp Nomad** | Allocation log inspection, allocation restart, job version rollback | Official Nomad HTTP API (`/v1/job/{id}`) |
+| **Linux Bare-Metal / VPS** | `journalctl` stream capture, `systemctl restart <service>` | Linux systemd D-Bus & CLI wrappers |
 
 ---
 
 ## 📊 Subscription Tiers & Predictable Economics
 
-<p align="center">
-  <img src="docs/images/amber-pricing.png" alt="Amber Pricing Tiers" width="100%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);" />
-</p>
-
 | Capability | Community Tier (Free Forever) | Autonomous Tier ($2,099/mo) | Response Tier ($3,699/mo) |
 | :--- | :--- | :--- | :--- |
-| **Target Scale** | Small teams & local-first clusters | Growing startups & production clusters | Enterprise infrastructure & mission-critical |
-| **Monitored Nodes** | **Up to 50 Cloud / K8s Nodes** | **Up to 150 Cloud / K8s Nodes** | **Unlimited Nodes** |
-| **Production Services** | **Up to 15 Services** | **Up to 40 Services** | **Custom / Unlimited Services** |
-| **Monthly Alerts** | **1,000 Alerts / Month** | **10,000 Alerts / Month** | **Unlimited Ingestion** |
-| **Alert Storm Deduplication** | `< 80ms` Sliding Window Hash | `< 80ms` Sliding Window Hash | `< 80ms` Sliding Window Hash |
-| **Deterministic Root-Cause** | Exact file, line & stack proof | Exact file, line & stack proof | Exact file, line & stack proof |
-| **Deadlock & OOM Tracing** | Memory leak & pool tracing | Memory leak & pool tracing | Memory leak & pool tracing |
-| **Built-in SRE Runbooks** | **50+ Standard Runbooks** | 50+ Standard + 5 Tailored Runbooks | Full White-Glove Runbook Engineering |
-| **Automated Remediations** | Read-Only Probes + Manual Review | **100 Included Mutating Actions/mo** | **500 High-Volume Actions/mo** |
-| **HITL Approvals** | Telegram & Web | **Telegram, Slack & Web** | Multi-Workspace Omni-Channel |
-| **Incident Bridge Escalation** | Community GitHub / Discord | Standard Email & Slack Support | **< 15-min SLA with Amber Principal SRE** |
-| **License Requirement** | **$0 (Zero Key Required)** | Offline Ed25519 Signed License | Custom Dedicated VPC Contract |
+| **Target Scale** | Indie hackers & test clusters | Growing startups & production fleets | Enterprise multi-cloud infrastructure |
+| **Managed Nodes** | **Up to 3 Active Nodes** | **Up to 150 Cloud / K8s Nodes** | **Unlimited Nodes** |
+| **Production Services** | **Up to 5 Services** | **Up to 40 Services** | **Unlimited Services** |
+| **Sentinel Heartbeat** | 24x7 Continuous Heartbeat | 24x7 Continuous Heartbeat | 24x7 Continuous Heartbeat |
+| **Noise Filtering** | Transient Glitch Shield ON | Transient Glitch Shield ON | Advanced Multi-VPC Correlation |
+| **Smart Log Pruner** | Blackbox Flight Recorder (±120s) | Blackbox Flight Recorder (±120s) | Customizable Retention Policies |
+| **Automated Remediations** | Sub-60s Pod & DB Recovery | 100 Included Mutating Actions/mo | Unlimited Mutating Actions/mo |
+| **License Key** | **$0 (Zero Key Required)** | Single-Use Ed25519 Token | Multi-Cluster Hardware Bound Token |
+| **Contact to Upgrade** | `founders@ambersre.xyz` | [ambersre.xyz/#connect](https://ambersre.xyz/#connect) | Dedicated Principal SRE SLA |
 
 ---
 
-## 📈 Verifiable Production Benchmarks
+## 🧪 Verifiable Production Test Suite
 
-*All metrics measured under synthetic alert-burst stress tests and automated test suites:*
-
-| Metric | Measured Benchmark | Validation Architecture |
-| :--- | :--- | :--- |
-| **Throughput Capacity** | **500+ alerts / second** | Redis 7 Stream buffer with asynchronous FastAPI webhook consumer (`0.00%` dropped events). |
-| **Incident Triage Latency** | **< 2.8 seconds** | LangGraph triage node using structured Pydantic schemas and fast inference models. |
-| **Unvetted Shell Commands** | **0 (Strict Allowlist)** | 100% of remediation actions are compiled in static code registry. LLMs have zero terminal access. |
-| **Recovery Time (Benchmarked)**| **8.4 seconds MTTR** | Automated test suite: alert ingestion → triage → simulated HITL approval → verified cluster health probe. |
-| **Kill-Switch Latency** | **< 250 milliseconds** | In-memory atomic flag downgrading all active worker threads to Read-Only Observation Mode. |
-
----
-
-## 🧪 Running Test Suite
+Amber maintains an exhaustive automated test suite covering multi-agent reasoning, infrastructure providers, noise filters, and cryptographic guardrails:
 
 ```bash
-# Run all unit, integration, and safety guardrail tests
 pytest tests/ -v
 ```
 
 ```text
-tests/test_agent.py::test_triage_node_classification PASSED              [  5%]
-tests/test_agent.py::test_investigation_tool_calling PASSED              [ 10%]
-tests/test_approval_service.py::test_token_generation_and_expiry PASSED   [ 15%]
-tests/test_approval_service.py::test_sha256_payload_binding PASSED       [ 20%]
-tests/test_guardrail.py::test_prohibit_unvetted_commands PASSED           [ 25%]
-tests/test_license.py::test_community_tier_quotas PASSED                 [ 30%]
-...
-============================= 71 passed in 1.89s ==============================
+tests/test_approvals.py .....                                            [  5%]
+tests/test_auth.py .....                                                 [ 11%]
+tests/test_enterprise_sso_multicluster.py .....                          [ 17%]
+tests/test_infra_providers.py ......                                     [ 25%]
+tests/test_k8s.py ......                                                 [ 32%]
+tests/test_license.py .......                                            [ 40%]
+tests/test_llm_gateway.py ..............................                 [ 76%]
+tests/test_notifications.py ...                                          [ 79%]
+tests/test_post_mortem.py ..                                             [ 82%]
+tests/test_sanitizer.py ....                                             [ 86%]
+tests/test_sentinel.py .......                                           [ 95%]
+tests/test_tools.py ....                                                 [100%]
+
+============================== 84 passed in 4.95s ==============================
 ```
 
 ---
@@ -227,11 +178,6 @@ tests/test_license.py::test_community_tier_quotas PASSED                 [ 30%]
 
 Amber Backend is licensed under the **Business Source License 1.1 (BSL 1.1)**:
 
-- **Free Community Edition:** Free forever for internal development, testing, and self-hosted production clusters **strictly within Community Tier parameters**:
-  - Up to **50 Nodes** (Cloud or Kubernetes)
-  - Up to **15 Production Services**
-  - Up to **1,000 Ingested Alerts/month**
-  - Non-compete: Offering Amber as a hosted SaaS or managed cloud service is strictly prohibited.
-- **Enterprise Commercial License:** Any deployment exceeding Community Tier limits (e.g., >50 nodes, >15 services) or requiring automated mutating cluster healing, multi-channel approval bridges, and white-glove response SLAs requires an official **Amber Enterprise License Key**.
-- **Contact & Enterprise Inquiries:** [https://ambersre.xyz/#connect](https://ambersre.xyz/#connect) · `team@ambersre.xyz`
-- **Frontend Licensing:** The Amber web dashboard is source-available on GitHub under Proprietary / All Rights Reserved terms.
+- **Free Community Edition:** Free forever for internal development, testing, and production clusters up to **3 active nodes and 5 services**.
+- **Enterprise Commercial License:** Any deployment exceeding Community Tier limits or requiring multi-cluster automated healing requires an official Amber Enterprise License Key.
+- **Enterprise Inquiries:** [https://ambersre.xyz/#connect](https://ambersre.xyz/#connect) · `founders@ambersre.xyz`

@@ -130,6 +130,27 @@ React 19 + TypeScript Single Page Application deployed on Cloudflare Workers edg
 - Deep Proof Inspection Drawer (live diagnostic evidence, runbook match scores, mutation diffs).
 - Full SEO metadata, Schema.org `SoftwareApplication` JSON-LD, and zero-latency CDN delivery.
 
+### 10. Sovereign Sentinel Daemon (`backend/app/sentinel/watcher.py`)
+A 24x7 non-sleeping supervisor loop running inside the FastAPI lifespan.
+- **Continuous Telemetry Polling:** Inspects orchestrator pod/container health, database connection pool saturation, and internal service HTTP latencies.
+- **In-Process LangGraph Trigger:** When an outage is detected, bypasses external webhook roundtrips and dispatches directly to `process_alert_into_incident`.
+
+### 11. SRE Noise Filter & Flapping Shield (`backend/app/sentinel/noise_filter.py`)
+- **Transient Spike Shield:** Automatically suppresses glitches lasting under 15 seconds (e.g. temporary CPU or latency spikes).
+- **Flapping Shield:** Groups repeated pod/container crash loops into a single consolidated incident, preventing alert storms.
+
+### 12. Blackbox Flight Recorder & Log Pruner (`backend/app/sentinel/log_pruner.py`)
+- **Safe-by-Default:** Pruning is disabled by default (preserves 100% of logs).
+- **Smart Garbage Shredder (`amber log-pruner enable`):** Auto-purges routine `200 OK`, `/healthz`, and debug ping lines, saving ~95% log storage while capturing a surgical ±120s flight recorder crash window.
+
+### 13. Universal Infrastructure Engine (`backend/app/infra_providers/`)
+Standardized `BaseInfraProvider` interface with automatic environment detection:
+- **Kubernetes / K3s:** Pod log extraction, pod recreate, rollout restart, deployment rollback.
+- **Docker & Docker Swarm:** Unix socket `/var/run/docker.sock` container restarts and swarm rollbacks.
+- **AWS ECS / Fargate:** Task replacements and force new deployment updates.
+- **HashiCorp Nomad:** Nomad allocations restart and job rollback.
+- **Linux Bare-Metal / Systemd:** `systemctl` service control and `journalctl` stream capture.
+
 ---
 
 ## 4. Data Flow
