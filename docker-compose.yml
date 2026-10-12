@@ -101,11 +101,16 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - REDIS_ENABLED=true
       - LOCAL_LLM_ENDPOINT=http://ollama:11434/v1
+      - LOCAL_LLM_MODEL=${LOCAL_LLM_MODEL:-qwen2.5-coder:7b}
       - ENVIRONMENT=production
+      - AIR_GAPPED=${AIR_GAPPED:-false}
+      - LOG_PRUNER_ENABLED=${LOG_PRUNER_ENABLED:-false}
       - HOST=0.0.0.0
       - PORT=8000
     volumes:
       - ./backend:/app/backend
+      - ./scripts:/app/scripts
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:

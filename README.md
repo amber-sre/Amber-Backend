@@ -47,6 +47,21 @@ Amber is the **complete autonomous replacement**:
 
 ---
 
+## 🔒 100% In-VPC Privacy, Air-Gapped Operation & Zero-Telemetry Sovereignty
+
+> **The Sovereign Principle:** Your infrastructure code, secrets, database queries, and incident logs should **NEVER** leave your VPC to train third-party models or sit in an unencrypted multi-tenant SaaS silo.
+
+Amber is engineered specifically for security-first engineering, fintech, defense, and high-compliance teams:
+
+* 🛡️ **Zero Telemetry Egress (0 Bytes Leaves Your VPC):** Unlike Datadog, New Relic, or cloud APMs that hoover up and bill you for petabytes of private telemetry, Amber runs 100% locally inside your private subnet. Zero analytics beacons, telemetry pings, or log data leave your boundary.
+* 🧠 **Air-Gapped Local LLM Brain (Ollama):** Triage, root-cause deduction, and runbook matching run entirely on your own CPU/GPU hardware via self-hosted open-weights models (`qwen2.5-coder:7b`, `deepseek-r1:8b`). Your proprietary source code and error messages never touch external AI APIs.
+* 🧼 **In-Memory Cryptographic Secret Sanitizer:** Every raw log, stack trace, and metric payload passes through Amber's high-speed in-memory sanitizer (`backend/app/core/sanitizer.py`) before reaching the reasoning mesh. All JWTs, Bearer tokens, AWS access keys (`AKIA...`), database passwords, private keys, and PII are stripped in microseconds.
+* 🔐 **Offline Cryptographic License Verification (Ed25519):** Enterprise commercial licenses are validated completely offline using digital signatures and hardware bindings. The engine operates in air-gapped perimeters (`AIR_GAPPED=true`) with **zero phone-home licensing checks**.
+* 🛑 **Zero Arbitrary Shell Execution:** Amber does not hand raw unrestricted bash shells to any LLM. Remediations are strictly bound to deterministic, schema-validated runbooks with SHA-256 HMAC payload signatures and human-in-the-loop approval gates.
+* 🗄️ **Local Smart Blackbox Noise Shredder:** Routine 200 OK traffic is safely shredded on your own disk, preserving a high-fidelity **±120s flight recorder crash window** without forcing you to pay SaaS cloud log retention bills.
+
+---
+
 ## 🛠️ Complete Tech Stack Matrix
 
 | Layer | Technology | Role & Architecture Rationale |
@@ -68,18 +83,20 @@ Amber is the **complete autonomous replacement**:
 Deploy the fully-functional Amber Community Edition on any Linux host, VPS, or Kubernetes node:
 
 ```bash
+# One-line automated setup
+curl -fsSL https://ambersre.xyz/community.sh | bash
+
+# Or directly from the repo:
 amber community setup
-# or run directly via:
-python scripts/setup_community.py
 ```
 
 **The Interactive Community Setup Wizard features:**
 * 🎬 **Animated ASCII Startup:** Amber SRE kernel initialization animation.
-* 📦 **Dependency Checklist with Live Progress:** Audits Python, database drivers, orchestrator core, and local Ollama engine.
+* 📦 **Dependency Checklist with Live Progress:** Audits Docker, Python 3.10+, database drivers, orchestrator core, and local Ollama engine.
 * 👤 **Operator Profile:** Collects Name, Email, VPC Name, and Startup Project Name.
-* 🤖 **Interactive Arrow-Key Model Selector:** Choose between `qwen2.5-coder:1.5b`, `qwen2.5-coder:7b`, `deepseek-r1:8b`, or `qwen2.5-coder:14b`.
+* 🤖 **Interactive Arrow-Key Model Selector:** Choose between `qwen2.5-coder:7b`, `deepseek-r1:8b`, or `llama3.2:3b`.
 * ⭐ **GitHub Star Hook:** Automatically opens the Amber backend repository for starring while your AI model downloads in the background.
-* 🔒 **Community Quota:** Free forever for up to **3 Managed Nodes**.
+* 🔒 **Community Quota:** Free forever for up to **3 Managed Nodes & 5 Services** (Zero License Key required).
 
 ---
 
@@ -88,9 +105,11 @@ python scripts/setup_community.py
 For production fleets, multi-cluster VPCs, and unlimited node deployments:
 
 ```bash
+# One-line automated enterprise setup
+curl -fsSL https://ambersre.xyz/install.sh | bash
+
+# Or directly from the repo:
 amber commercial setup
-# or run directly via:
-python scripts/setup_enterprise.py
 ```
 
 **The Enterprise Commercial Wizard features:**
@@ -99,6 +118,23 @@ python scripts/setup_enterprise.py
 * ☁️ **Hybrid Cloud AI Option:** Interactive prompt to configure Claude 3.5 Sonnet, GPT-4o, or Gemini 1.5 Pro for hybrid multi-agent consensus.
 * 🗄️ **Database URL Setup:** Interactive prompt with smooth backspace/empty skip to connect direct PostgreSQL auto-healing.
 * 🚀 **Unlimited Capacity:** All nodes unlocked, multi-cloud ready, and 24/7 dedicated SRE SLA.
+
+---
+
+### Option C: Docker Compose Full Stack (100% Self-Hosted & Air-Gapped)
+
+Spin up the entire sovereign stack (FastAPI Backend with 24/7 Sentinel daemon, PostgreSQL 16 pgvector, Redis 7, and Ollama) with a single command:
+
+```bash
+git clone https://github.com/himanshu-xyz-1/Amber-Backend.git ~/.amber
+cd ~/.amber
+
+# Start all sovereign services in background
+docker compose up -d
+
+# Check live Sovereign Dashboard inside the container
+docker compose exec backend amber status
+```
 
 ---
 
@@ -133,16 +169,18 @@ Amber automatically detects your hosting environment on boot and binds the appro
 
 ## 📊 Subscription Tiers & Predictable Economics
 
-| Capability | Community Tier (Free Forever) | Autonomous Tier ($2,099/mo) | Response Tier ($3,699/mo) |
+| Capability | Community Tier (Free Forever) | Autonomous Tier ($2,299/mo) | Response Tier ($4,299/mo) |
 | :--- | :--- | :--- | :--- |
 | **Target Scale** | Indie hackers & test clusters | Growing startups & production fleets | Enterprise multi-cloud infrastructure |
-| **Managed Nodes** | **Up to 3 Active Nodes** | **Up to 150 Cloud / K8s Nodes** | **Unlimited Nodes** |
-| **Production Services** | **Up to 5 Services** | **Up to 40 Services** | **Unlimited Services** |
+| **Managed Nodes** | **Up to 3 Active Nodes** | **Up to 100 Cloud / K8s Nodes** | **Unlimited Enterprise Fleet** |
+| **Production Services** | **Up to 5 Services** | **Up to 35 Services** | **Enterprise Fleet** |
+| **Data Sovereignty** | **100% In-VPC (Zero Egress)** | **100% In-VPC (Zero Egress)** | **Air-Gapped & Sovereign** |
 | **Sentinel Heartbeat** | 24x7 Continuous Heartbeat | 24x7 Continuous Heartbeat | 24x7 Continuous Heartbeat |
 | **Noise Filtering** | Transient Glitch Shield ON | Transient Glitch Shield ON | Advanced Multi-VPC Correlation |
 | **Smart Log Pruner** | Blackbox Flight Recorder (±120s) | Blackbox Flight Recorder (±120s) | Customizable Retention Policies |
-| **Automated Remediations** | Sub-60s Pod & DB Recovery | 100 Included Mutating Actions/mo | Unlimited Mutating Actions/mo |
-| **License Key** | **$0 (Zero Key Required)** | Single-Use Ed25519 Token | Multi-Cluster Hardware Bound Token |
+| **Automated Remediations** | Sub-60s Pod & DB Recovery (3 Nodes) | 100 Included Mutating Actions/mo | High-Volume (500/mo) Mutating Actions |
+| **Billing Cycle** | **$0 (Zero Key Required)** | $2,299/mo (Annual) or $2,499/mo | $4,299/mo (Annual) or $4,499/mo |
+| **Support SLA** | GitHub Community | Private Slack Connect | Priority SRE War Room Bridge |
 | **Contact to Upgrade** | `founders@ambersre.xyz` | [ambersre.xyz/#connect](https://ambersre.xyz/#connect) | Dedicated Principal SRE SLA |
 
 ---

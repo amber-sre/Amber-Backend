@@ -28,11 +28,17 @@ ENV PATH=/home/amber/.local/bin:$PATH \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
-# Copy application source code and migrations
+# Copy application source code, migrations, and CLI tools
 COPY --chown=amber:amber backend /app/backend
 COPY --chown=amber:amber data /app/data
 COPY --chown=amber:amber alembic /app/alembic
 COPY --chown=amber:amber alembic.ini /app/alembic.ini
+COPY --chown=amber:amber scripts /app/scripts
+
+# Make amber CLI available in PATH for container operators
+RUN chmod +x /app/scripts/amber && \
+    mkdir -p /home/amber/.local/bin && \
+    ln -sf /app/scripts/amber /home/amber/.local/bin/amber
 
 USER amber
 
