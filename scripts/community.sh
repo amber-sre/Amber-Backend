@@ -8,8 +8,8 @@
 # Features:
 #   • 100% Self-Hosted & Free Forever ($0 Cloud Cost)
 #   • Zero License Key Required
-#   • Pre-configured for 50 Nodes, 15 Services, 1,000 Alerts/mo
-#   • Full Incident Intelligence, Root-Cause Proof & 50+ Runbooks
+#   • Pre-configured for 3 Nodes, 5 Services, 1,000 Alerts/mo
+#   • Sovereign Auto-Healing & 24/7 In-VPC Sentinel Daemon
 #   • Local Ollama AI Setup & On-Call Alert Pairing
 # ==============================================================================
 set -euo pipefail
@@ -26,7 +26,7 @@ error() { echo -e "${RED}[Amber ERROR]${NC} $*"; exit 1; }
 echo ""
 echo -e "${CYAN}${BOLD}======================================================================${NC}"
 echo -e "${CYAN}${BOLD}  ⚡ AMBER SRE — FREE COMMUNITY EDITION INSTALLER${NC}"
-echo -e "  100% Self-Hosted • Up to 50 Nodes • 15 Services • 1,000 Alerts/mo"
+echo -e "  100% Self-Hosted • Up to 3 Nodes • 5 Services • 1,000 Alerts/mo"
 echo -e "${CYAN}${BOLD}======================================================================${NC}"
 echo ""
 
@@ -100,17 +100,17 @@ fi
 echo ""
 info "Launching Community Onboarding Wizard..."
 if [ -e /dev/tty ]; then
-    "$VENV_PY" scripts/setup_wizard.py --community < /dev/tty
+    "$VENV_PY" -m scripts.setup_wizards community < /dev/tty
 else
-    "$VENV_PY" scripts/setup_wizard.py --community
+    "$VENV_PY" -m scripts.setup_wizards community
 fi
 
 # ──────────────────────────────────────────────────────────────────────
 # Step 6: Make CLI wrapper available
 # ──────────────────────────────────────────────────────────────────────
-chmod +x amber
+chmod +x scripts/amber 2>/dev/null || true
 mkdir -p "${HOME}/.local/bin"
-ln -sf "${AMBER_DIR}/amber" "${HOME}/.local/bin/amber" 2>/dev/null || true
+ln -sf "${AMBER_DIR}/scripts/amber" "${HOME}/.local/bin/amber" 2>/dev/null || true
 
 # ──────────────────────────────────────────────────────────────────────
 # Step 7: Launch Background Containers
@@ -123,8 +123,13 @@ fi
 echo ""
 echo -e "${GREEN}${BOLD}======================================================================${NC}"
 echo -e "${GREEN}${BOLD}  ✔ AMBER COMMUNITY EDITION IS READY!${NC}"
+echo -e ""
+echo -e "  🛡️ Sovereign Sentinel Daemon: ACTIVE (24x7 In-VPC Heartbeat)"
+echo -e "  ⚡ Up to 3 Nodes Managed & Auto-Healed Sovereignly"
+echo -e ""
 echo -e "  To manage your engine anytime, use the CLI:"
-echo -e "    ${BOLD}cd ~/.amber && ./amber status${NC}"
-echo -e "    ${BOLD}cd ~/.amber && ./amber test-alert${NC} (verifies phone push alerts)"
+echo -e "    ${BOLD}amber status${NC}"
+echo -e "    ${BOLD}amber community setup${NC}"
+echo -e "    ${BOLD}amber log-pruner status${NC}"
 echo -e "${GREEN}${BOLD}======================================================================${NC}"
 echo ""
