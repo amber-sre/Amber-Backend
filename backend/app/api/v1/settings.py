@@ -66,3 +66,72 @@ async def kill_switch_status(
         "engaged": kill_switch.is_engaged
     }
 
+
+@router.post("/log-pruning/enable")
+async def enable_log_pruning(
+    _current_user: AuthenticatedUser = Depends(require_api_key),
+) -> dict[str, Any]:
+    """
+    Explicitly enables Smart Log Pruning. Routine noise (200 OKs, health checks)
+    will be purged while blackbox error windows are preserved.
+    """
+    from backend.app.sentinel.log_pruner import get_log_pruner
+    pruner = get_log_pruner()
+    pruner.enable_pruning()
+    return {
+        "status": "enabled",
+        "message": "🔥 Smart Log Pruning ENABLED. Routine 200 OKs & heartbeat noise will be auto-purged.",
+        "details": pruner.get_status()
+    }
+
+
+@router.post("/log-pruning/disable")
+async def disable_log_pruning(
+    _current_user: AuthenticatedUser = Depends(require_api_key),
+) -> dict[str, Any]:
+    """
+    Disables log pruning. Reverts Amber to preserving 100% of all incoming logs.
+    """
+    from backend.app.sentinel.log_pruner import get_log_pruner
+    pruner = get_log_pruner()
+    pruner.disable_pruning()
+    return {
+        "status": "disabled",
+        "message": "🛡️ Smart Log Pruning DISABLED. Preserving 100% of logs without deletion.",
+        "details": pruner.get_status()
+    }
+
+
+@router.get("/log-pruning/status")
+async def log_pruning_status(
+    _current_user: AuthenticatedUser = Depends(require_api_key),
+) -> dict[str, Any]:
+    """
+    Returns current status of log pruner and flight recorder.
+    """
+    from backend.app.sentinel.log_pruner import get_log_pruner
+    return get_log_pruner().get_status()
+
+
+@router.get("/system-status")
+async def consolidated_system_status(
+    _current_user: AuthenticatedUser = Depends(require_api_key),
+) -> dict[str, Any]:
+    """
+    Returns complete sovereign Amber SRE system status.
+    """
+    from backend.app.infra_providers.factory import get_infra_provider
+    from backend.app.sentinel.log_pruner import get_log_pruner
+
+    provider = get_infra_provider()
+    pruner = get_log_pruner()
+
+    return {
+        "amber_version": "0.1.0",
+        "sovereign_sre": "ACTIVE",
+        "infra_provider": provider.provider_type.value,
+        "kill_switch_engaged": kill_switch.is_engaged,
+        "log_pruning": pruner.get_status(),
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+

@@ -1,5 +1,9 @@
 from backend.app.sentinel.dispatcher import AutonomousIncidentDispatcher
-from backend.app.sentinel.log_pruner import BlackboxLogPruner
+from backend.app.sentinel.log_pruner import (
+    BlackboxLogPruner,
+    get_log_pruner,
+    set_log_pruner,
+)
 from backend.app.sentinel.models import (
     AnomalySeverity,
     AnomalyType,
@@ -16,6 +20,8 @@ __all__ = [
     "FlightRecorderSnapshot",
     "NoiseFilter",
     "BlackboxLogPruner",
+    "get_log_pruner",
+    "set_log_pruner",
     "AutonomousIncidentDispatcher",
     "SentinelWatcher",
 ]

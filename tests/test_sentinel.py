@@ -98,8 +98,26 @@ def test_noise_filter_flapping_detection():
     assert event4.suppression_reason == "CONSOLIDATED_FLAPPING_STREAM"
 
 
-def test_log_pruner_purges_routine_noise():
+def test_log_pruner_default_disabled_preserves_all_logs():
     pruner = BlackboxLogPruner()
+    assert pruner.enabled is False
+    service = "orders-api"
+    raw_stream = [
+        "GET /healthz HTTP/1.1 200 OK",
+        "DEBUG routine heartbeat received",
+        "INFO 200 OK user profile fetched",
+    ]
+    pruner.ingest_log_batch(service, raw_stream)
+    snapshot = pruner.capture_blackbox_snapshot(service, window_seconds=60)
+    # By default, zero logs are purged
+    assert snapshot.purged_noise_count == 0
+    assert len(snapshot.pruned_logs) == 3
+
+
+def test_log_pruner_purges_routine_noise_when_enabled():
+    pruner = BlackboxLogPruner()
+    pruner.enable_pruning()
+    assert pruner.enabled is True
     service = "orders-api"
 
     raw_stream = [

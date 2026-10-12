@@ -8,7 +8,7 @@ from sqlalchemy import text
 from backend.app.core.database import AsyncSessionLocal
 from backend.app.infra_providers.factory import get_infra_provider
 from backend.app.sentinel.dispatcher import AutonomousIncidentDispatcher
-from backend.app.sentinel.log_pruner import BlackboxLogPruner
+from backend.app.sentinel.log_pruner import BlackboxLogPruner, get_log_pruner
 from backend.app.sentinel.models import (
     AnomalySeverity,
     AnomalyType,
@@ -34,7 +34,7 @@ class SentinelWatcher:
     ):
         self.poll_interval = poll_interval_seconds
         self.noise_filter = noise_filter or NoiseFilter()
-        self.log_pruner = log_pruner or BlackboxLogPruner()
+        self.log_pruner = log_pruner or get_log_pruner()
         self.monitored_services = monitored_services or ["payment-service", "checkout-svc", "auth-svc"]
         self._is_running = False
         self._task: Optional[asyncio.Task] = None

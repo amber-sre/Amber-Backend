@@ -1,0 +1,130 @@
+#!/usr/bin/env python3
+"""
+Amber Sovereign SRE Command Line Interface (amber CLI)
+Controls 24x7 Sentinel, Smart Log Pruning, and Sovereign Infrastructure.
+"""
+
+import argparse
+import os
+import sys
+
+# Follow symlinks to locate the real repository root
+real_file = os.path.realpath(__file__)
+repo_root = os.path.dirname(os.path.dirname(real_file))
+
+# Automatically re-execute using the project's dedicated virtual environment if available
+venv_python = os.path.join(repo_root, ".venv", "bin", "python3")
+if not os.path.exists(venv_python):
+    alt_venv = os.path.expanduser("~/.amber/.venv/bin/python3")
+    if os.path.exists(alt_venv):
+        venv_python = alt_venv
+
+if os.path.exists(venv_python) and sys.executable != venv_python:
+    os.execv(venv_python, [venv_python] + sys.argv)
+
+if repo_root not in sys.path:
+    sys.path.insert(0, repo_root)
+
+from backend.app.core.kill_switch import kill_switch
+from backend.app.infra_providers.factory import get_infra_provider
+from backend.app.sentinel.log_pruner import get_log_pruner
+
+COLOR_CYAN = "\033[96m"
+COLOR_GREEN = "\033[92m"
+COLOR_YELLOW = "\033[93m"
+COLOR_RED = "\033[91m"
+COLOR_BOLD = "\033[1m"
+COLOR_RESET = "\033[0m"
+
+
+def print_banner():
+    print(f"{COLOR_CYAN}{COLOR_BOLD}")
+    print("=" * 64)
+    print("        🛡️  AMBER AUTONOMOUS SOVEREIGN SRE ENGINE  🛡️        ")
+    print("=" * 64)
+    print(f"{COLOR_RESET}")
+
+
+def show_system_status():
+    print_banner()
+    provider = get_infra_provider()
+    pruner = get_log_pruner()
+    status = pruner.get_status()
+
+    pruning_badge = (
+        f"{COLOR_GREEN}ENABLED (Smart Noise Shredder ON){COLOR_RESET}"
+        if status["pruning_enabled"]
+        else f"{COLOR_YELLOW}DISABLED (Preserving 100% Logs){COLOR_RESET}"
+    )
+
+    kill_badge = (
+        f"{COLOR_RED}ENGAGED (Read-Only Mode){COLOR_RESET}"
+        if kill_switch.is_engaged
+        else f"{COLOR_GREEN}DISENGAGED (Autonomous Auto-Heal ACTIVE){COLOR_RESET}"
+    )
+
+    print(f"{COLOR_BOLD}SYSTEM DASHBOARD:{COLOR_RESET}")
+    print(f"  • Sovereign SRE Core:     {COLOR_GREEN}ACTIVE (24x7 Surveillance){COLOR_RESET}")
+    print(f"  • Active Infra Provider:  {COLOR_CYAN}{provider.provider_type.value.upper()}{COLOR_RESET}")
+    print(f"  • Sentinel Daemon:        {COLOR_GREEN}RUNNING (Zero Sleep Heartbeat){COLOR_RESET}")
+    print(f"  • Autonomous Kill-Switch: {kill_badge}")
+    print("-" * 64)
+    print(f"{COLOR_BOLD}LOG PRUNING & NOISE CONTROL:{COLOR_RESET}")
+    print(f"  • Pruner State:           {pruning_badge}")
+    print(f"  • Routine Traffic Action: {status['routine_noise_action']}")
+    print(f"  • Incident Retention:     {status['incident_retention']}")
+    print(f"  • Estimated Space Saved:  {COLOR_BOLD}{status['estimated_storage_saved_pct']}{COLOR_RESET}")
+    print(f"  • Purged Noise Lines:     {status['total_purged_noise_lines']}")
+    print("=" * 64)
+
+
+def handle_log_pruner(action: str):
+    pruner = get_log_pruner()
+
+    if action in ("enable", "on", "start"):
+        pruner.enable_pruning()
+        print(f"\n{COLOR_GREEN}{COLOR_BOLD}✅ [AMBER] SMART LOG PRUNING ENGAGED!{COLOR_RESET}")
+        print(f"Ab se bakwas routine logs (200 OKs, /healthz, ping heartbeat) auto-purge honge.")
+        print(f"Outage aane par Blackbox Flight Recorder (±120s window) preserve rahega.\n")
+    elif action in ("disable", "off", "stop"):
+        pruner.disable_pruning()
+        print(f"\n{COLOR_YELLOW}{COLOR_BOLD}🛡️ [AMBER] LOG PRUNING DISABLED!{COLOR_RESET}")
+        print(f"Amber ab 100% logs ko safe rakhega, koi log delete nahi hoga.\n")
+    elif action in ("status", "info"):
+        pass
+    else:
+        print(f"{COLOR_RED}Unknown action: {action}. Use 'enable', 'disable', or 'status'.{COLOR_RESET}")
+        sys.exit(1)
+
+    show_system_status()
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Amber Autonomous Sovereign SRE Control CLI",
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    subparsers = parser.add_subparsers(dest="command")
+
+    # Command: status
+    subparsers.add_parser("status", help="Show full Amber sovereign system status")
+
+    # Command: log-pruner / prune-logs
+    p_prune = subparsers.add_parser("log-pruner", help="Configure smart log pruning and noise reduction")
+    p_prune.add_argument("action", choices=["enable", "disable", "status", "on", "off"], help="Pruner action")
+
+    p_prune_alias = subparsers.add_parser("prune-logs", help="Alias for log-pruner")
+    p_prune_alias.add_argument("action", choices=["enable", "disable", "status", "on", "off"], help="Pruner action")
+
+    args = parser.parse_args()
+
+    if args.command in ("log-pruner", "prune-logs"):
+        handle_log_pruner(args.action)
+    elif args.command == "status" or args.command is None:
+        show_system_status()
+    else:
+        parser.print_help()
+
+
+if __name__ == "__main__":
+    main()
