@@ -116,9 +116,23 @@ def main():
     p_prune_alias = subparsers.add_parser("prune-logs", help="Alias for log-pruner")
     p_prune_alias.add_argument("action", choices=["enable", "disable", "status", "on", "off"], help="Pruner action")
 
+    # Command: community setup
+    p_comm = subparsers.add_parser("community", help="Amber Free Community Edition commands")
+    p_comm.add_argument("subaction", nargs="?", default="setup", choices=["setup"], help="Community action")
+
+    # Command: commercial setup
+    p_comm_ent = subparsers.add_parser("commercial", help="Amber Enterprise Commercial Edition commands")
+    p_comm_ent.add_argument("subaction", nargs="?", default="setup", choices=["setup"], help="Commercial action")
+
     args = parser.parse_args()
 
-    if args.command in ("log-pruner", "prune-logs"):
+    if args.command == "community":
+        from scripts.setup_wizards import run_community_setup
+        run_community_setup()
+    elif args.command == "commercial":
+        from scripts.setup_wizards import run_commercial_setup
+        run_commercial_setup()
+    elif args.command in ("log-pruner", "prune-logs"):
         handle_log_pruner(args.action)
     elif args.command == "status" or args.command is None:
         show_system_status()
