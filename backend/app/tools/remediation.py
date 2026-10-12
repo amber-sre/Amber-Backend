@@ -13,6 +13,8 @@ from backend.app.core.k8s import (
     k8s_rollback_deployment,
     k8s_rollout_restart_deployment,
 )
+from backend.app.infra_providers.base import ProviderType
+from backend.app.infra_providers.factory import get_infra_provider
 from backend.app.tools.base import BaseTool, RiskLevel, ToolResult, tool_registry
 
 logger = logging.getLogger(__name__)
@@ -234,6 +236,26 @@ class RollbackDeployment(BaseTool):
         target_revision = kwargs.get("target_revision", "previous")
         namespace = kwargs.get("namespace", "production")
 
+        provider = get_infra_provider()
+        if provider.provider_type != ProviderType.KUBERNETES:
+            try:
+                res = await provider.rollback_service(service_name=deployment, target_revision=target_revision, namespace=namespace)
+                execution_time_ms = (time.time() - start_time) * 1000
+                return ToolResult(
+                    success=True,
+                    data=res,
+                    error=None,
+                    execution_time_ms=execution_time_ms
+                )
+            except Exception as ex:
+                execution_time_ms = (time.time() - start_time) * 1000
+                return ToolResult(
+                    success=False,
+                    data={"deployment_name": deployment, "namespace": namespace, "status": "ROLLBACK_FAILED"},
+                    error=str(ex),
+                    execution_time_ms=execution_time_ms
+                )
+
         try:
             # 1. Execute live Kubernetes rollback
             rollback_data = await k8s_rollback_deployment(
@@ -313,6 +335,26 @@ class RestartServicePod(BaseTool):
         pod_name = kwargs["pod_name"]
         namespace = kwargs.get("namespace", "production")
 
+        provider = get_infra_provider()
+        if provider.provider_type != ProviderType.KUBERNETES:
+            try:
+                res = await provider.restart_service_instance(service_name=pod_name, namespace=namespace)
+                execution_time_ms = (time.time() - start_time) * 1000
+                return ToolResult(
+                    success=True,
+                    data=res,
+                    error=None,
+                    execution_time_ms=execution_time_ms
+                )
+            except Exception as ex:
+                execution_time_ms = (time.time() - start_time) * 1000
+                return ToolResult(
+                    success=False,
+                    data={"pod_name": pod_name, "namespace": namespace, "status": "RESTART_FAILED"},
+                    error=str(ex),
+                    execution_time_ms=execution_time_ms
+                )
+
         try:
             # Execute live Kubernetes pod termination
             pod_data = await k8s_restart_pod(pod_name=pod_name, namespace=namespace)
@@ -365,6 +407,26 @@ class RolloutRestartDeployment(BaseTool):
         start_time = time.time()
         deployment = kwargs["deployment_name"]
         namespace = kwargs.get("namespace", "production")
+
+        provider = get_infra_provider()
+        if provider.provider_type != ProviderType.KUBERNETES:
+            try:
+                res = await provider.rollout_restart_service(service_name=deployment, namespace=namespace)
+                execution_time_ms = (time.time() - start_time) * 1000
+                return ToolResult(
+                    success=True,
+                    data=res,
+                    error=None,
+                    execution_time_ms=execution_time_ms
+                )
+            except Exception as ex:
+                execution_time_ms = (time.time() - start_time) * 1000
+                return ToolResult(
+                    success=False,
+                    data={"deployment_name": deployment, "namespace": namespace, "status": "ROLLOUT_FAILED"},
+                    error=str(ex),
+                    execution_time_ms=execution_time_ms
+                )
 
         try:
             restart_data = await k8s_rollout_restart_deployment(

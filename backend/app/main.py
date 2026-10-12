@@ -46,8 +46,24 @@ async def lifespan(app: FastAPI):
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
 
+    # 2. Initialize Universal Infrastructure Provider
+    from backend.app.infra_providers import detect_infrastructure_provider, set_infra_provider
+    provider = await detect_infrastructure_provider()
+    set_infra_provider(provider)
+    logger.info(f"[LIFESPAN] Active Universal Infrastructure Provider: {provider.provider_type.value.upper()}")
+
+    # 3. Start 24x7 Sovereign Sentinel Daemon (if not test environment)
+    sentinel_watcher = None
+    if settings.ENVIRONMENT != "test":
+        from backend.app.sentinel import SentinelWatcher
+        sentinel_watcher = SentinelWatcher(poll_interval_seconds=15.0)
+        sentinel_watcher.start()
+        logger.info("[LIFESPAN] 24x7 Sovereign Sentinel surveillance loop engaged.")
+
     yield
     # Shutdown
+    if sentinel_watcher:
+        await sentinel_watcher.stop()
     logger.info("Shutting down Amber API...")
     await engine.dispose()
 
