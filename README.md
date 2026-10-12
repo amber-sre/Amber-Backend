@@ -146,7 +146,6 @@ NAME                     IMAGE                  STATUS
 amber-postgres           pgvector/pgvector:pg16 Up (healthy)   0.0.0.0:5432->5432/tcp
 amber-redis              redis:7-alpine         Up (healthy)   0.0.0.0:6379->6379/tcp
 amber-backend            amber-backend          Up (healthy)   0.0.0.0:8000->8000/tcp
-
 amber-telegram-bot       amber-backend          Up             (polling @ambersre_alert_bot)
 ```
 
@@ -219,7 +218,7 @@ tests/test_approval_service.py::test_sha256_payload_binding PASSED       [ 20%]
 tests/test_guardrail.py::test_prohibit_unvetted_commands PASSED           [ 25%]
 tests/test_license.py::test_community_tier_quotas PASSED                 [ 30%]
 ...
-============================= 20 passed in 1.42s ==============================
+============================= 71 passed in 1.89s ==============================
 ```
 
 ---
@@ -235,4 +234,4 @@ Amber Backend is licensed under the **Business Source License 1.1 (BSL 1.1)**:
   - Non-compete: Offering Amber as a hosted SaaS or managed cloud service is strictly prohibited.
 - **Enterprise Commercial License:** Any deployment exceeding Community Tier limits (e.g., >50 nodes, >15 services) or requiring automated mutating cluster healing, multi-channel approval bridges, and white-glove response SLAs requires an official **Amber Enterprise License Key**.
 - **Contact & Enterprise Inquiries:** [https://ambersre.xyz/#connect](https://ambersre.xyz/#connect) · `team@ambersre.xyz`
-- **Frontend Licensing:** The Amber web dashboard and client interfaces are **Proprietary & Closed-Source** (All Rights Reserved by Amber Technologies).
+- **Frontend Licensing:** The Amber web dashboard is source-available on GitHub under Proprietary / All Rights Reserved terms.
