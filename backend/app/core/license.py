@@ -117,6 +117,8 @@ class LicenseManager:
                 self.error_message = "License key missing expiration date."
                 return
 
+            if expires_str.endswith("Z"):
+                expires_str = expires_str[:-1] + "+00:00"
             expires_at = datetime.fromisoformat(expires_str)
             if expires_at.tzinfo is None:
                 expires_at = expires_at.replace(tzinfo=timezone.utc)
