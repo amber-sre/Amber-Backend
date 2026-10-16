@@ -246,12 +246,16 @@ def run_community_setup():
     # 4. Model Download + GitHub Star Hook
     print(f"{CYAN}{BOLD}{'═' * 72}{RESET}")
     print(f"{YELLOW}{BOLD}⭐ While your AI model is downloading, please star us on GitHub!{RESET}")
-    print(f"{DIM}Opening: https://github.com/himanshu-xyz-1/Amber-Backend in your browser...{RESET}\n")
 
-    try:
-        webbrowser.open("https://github.com/himanshu-xyz-1/Amber-Backend", new=2)
-    except Exception:
-        pass
+    is_headless = bool(os.environ.get("SSH_CLIENT") or os.environ.get("SSH_TTY") or not (os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")))
+    if not is_headless:
+        print(f"{DIM}Opening: https://github.com/himanshu-xyz-1/Amber-Backend in your browser...{RESET}\n")
+        try:
+            webbrowser.open("https://github.com/himanshu-xyz-1/Amber-Backend", new=2)
+        except Exception:
+            pass
+    else:
+        print(f"  {CYAN}👉 Star us on GitHub: {BOLD}https://github.com/himanshu-xyz-1/Amber-Backend{RESET}\n")
 
     run_model_download_with_progress(selected_model)
 
@@ -262,8 +266,7 @@ def run_community_setup():
         "AMBER_OWNER_EMAIL": details["email"],
         "AMBER_VPC_NAME": details["vpc"],
         "AMBER_PROJECT_NAME": details["startup"],
-        "OLLAMA_MODEL": selected_model,
-        "MAX_ACTIVE_NODES": "3"
+        "OLLAMA_MODEL": selected_model
     })
 
     # 6. Final Community Free Tier Card
@@ -399,8 +402,7 @@ def run_commercial_setup():
         "AMBER_OWNER_EMAIL": details["email"],
         "AMBER_VPC_NAME": details["vpc"],
         "AMBER_PROJECT_NAME": details["startup"],
-        "OLLAMA_MODEL": selected_model,
-        "MAX_ACTIVE_NODES": "unlimited"
+        "OLLAMA_MODEL": selected_model
     }
     if db_url:
         env_updates["TARGET_DATABASE_URL"] = db_url

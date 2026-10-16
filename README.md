@@ -178,10 +178,10 @@ Amber automatically detects your hosting environment on boot and binds the appro
 | **Sentinel Heartbeat** | 24x7 Continuous Heartbeat | 24x7 Continuous Heartbeat | 24x7 Continuous Heartbeat |
 | **Noise Filtering** | Transient Glitch Shield ON | Transient Glitch Shield ON | Advanced Multi-VPC Correlation |
 | **Smart Log Pruner** | Blackbox Flight Recorder (±120s) | Blackbox Flight Recorder (±120s) | Customizable Retention Policies |
-| **Automated Remediations** | Sub-60s Pod & DB Recovery (3 Nodes) | 100 Included Mutating Actions/mo | High-Volume (500/mo) Mutating Actions |
+| **Automated Remediations** | 10 Verified HITL Actions/mo (3 Nodes) | 100 Included Mutating Actions/mo | High-Volume (500/mo) Mutating Actions |
 | **Billing Cycle** | **$0 (Zero Key Required)** | $2,299/mo (Annual) or $2,499/mo | $4,299/mo (Annual) or $4,499/mo |
-| **Support SLA** | GitHub Community | Private Slack Connect | Priority SRE War Room Bridge |
-| **Contact to Upgrade** | `founders@ambersre.xyz` | [ambersre.xyz/#connect](https://ambersre.xyz/#connect) | Dedicated Principal SRE SLA |
+| **Support SLA** | GitHub Community | Private Slack Connect | Priority Incident Bridge Escalation |
+| **Contact to Upgrade** | `founders@ambersre.xyz` | [ambersre.xyz/#connect](https://ambersre.xyz/#connect) | Dedicated Forward-Deployed SRE Support |
 
 ---
 
