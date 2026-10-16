@@ -64,8 +64,8 @@ dev = [
 [project.urls]
 Homepage = "https://ambersre.xyz"
 Documentation = "https://ambersre.xyz/docs"
-Repository = "https://github.com/himanshu-xyz-1/Amber-Backend"
-Issues = "https://github.com/himanshu-xyz-1/Amber-Backend/issues"
+Repository = "https://github.com/amber-sre/Amber-Backend"
+Issues = "https://github.com/amber-sre/Amber-Backend/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]

@@ -126,7 +126,7 @@ amber commercial setup
 Spin up the entire sovereign stack (FastAPI Backend with 24/7 Sentinel daemon, PostgreSQL 16 pgvector, Redis 7, and Ollama) with a single command:
 
 ```bash
-git clone https://github.com/himanshu-xyz-1/Amber-Backend.git ~/.amber
+git clone https://github.com/amber-sre/Amber-Backend.git ~/.amber
 cd ~/.amber
 
 # Start all sovereign services in background

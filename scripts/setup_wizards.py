@@ -249,13 +249,13 @@ def run_community_setup():
 
     is_headless = bool(os.environ.get("SSH_CLIENT") or os.environ.get("SSH_TTY") or not (os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")))
     if not is_headless:
-        print(f"{DIM}Opening: https://github.com/himanshu-xyz-1/Amber-Backend in your browser...{RESET}\n")
+        print(f"{DIM}Opening: https://github.com/amber-sre/Amber-Backend in your browser...{RESET}\n")
         try:
-            webbrowser.open("https://github.com/himanshu-xyz-1/Amber-Backend", new=2)
+            webbrowser.open("https://github.com/amber-sre/Amber-Backend", new=2)
         except Exception:
             pass
     else:
-        print(f"  {CYAN}👉 Star us on GitHub: {BOLD}https://github.com/himanshu-xyz-1/Amber-Backend{RESET}\n")
+        print(f"  {CYAN}👉 Star us on GitHub: {BOLD}https://github.com/amber-sre/Amber-Backend{RESET}\n")
 
     run_model_download_with_progress(selected_model)
 

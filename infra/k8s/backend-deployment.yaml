@@ -19,7 +19,7 @@ spec:
       serviceAccountName: amber-operator
       containers:
         - name: amber-api
-          image: ghcr.io/himanshu-xyz-1/amber-backend:latest
+          image: ghcr.io/amber-sre/amber-backend:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
