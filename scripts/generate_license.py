@@ -24,18 +24,15 @@ DEFAULT_KEY_PATH = Path(
 
 TIER_CONFIG = {
     "community": {
-        "max_nodes": 15,
-        "max_services": 20,
-        "features": ["triage", "root_cause_analysis", "post_mortem", "read_only"]
-    },
-    "observe": {
-        "max_nodes": 15,
+        "max_nodes": 3,
         "max_services": 5,
+        "mutating_actions": 0,
         "features": ["triage", "root_cause_analysis", "post_mortem", "read_only"]
     },
-    "autonomous": {
-        "max_nodes": 100,
-        "max_services": 35,
+    "growth": {
+        "max_nodes": 30,
+        "max_services": 15,
+        "mutating_actions": 50,
         "features": [
             "triage",
             "root_cause_analysis",
@@ -46,9 +43,10 @@ TIER_CONFIG = {
             "hitl_sha256"
         ]
     },
-    "response": {
-        "max_nodes": 500,
-        "max_services": 9999,
+    "autonomous": {
+        "max_nodes": 100,
+        "max_services": 35,
+        "mutating_actions": 100,
         "features": [
             "triage",
             "root_cause_analysis",
@@ -57,13 +55,50 @@ TIER_CONFIG = {
             "telegram_bot",
             "auto_remediation",
             "hitl_sha256",
+            "executive_cto_audits"
+        ]
+    },
+    "response": {
+        "max_nodes": 500,
+        "max_services": 9999,
+        "mutating_actions": 500,
+        "features": [
+            "triage",
+            "root_cause_analysis",
+            "post_mortem",
+            "slack_approvals",
+            "telegram_bot",
+            "auto_remediation",
+            "hitl_sha256",
+            "executive_cto_audits",
             "air_gapped_runtime",
-            "priority_sla"
+            "priority_sla",
+            "custom_runbooks"
+        ]
+    },
+    "enterprise": {
+        "max_nodes": 500,
+        "max_services": 9999,
+        "mutating_actions": 1000,
+        "features": [
+            "triage",
+            "root_cause_analysis",
+            "post_mortem",
+            "slack_approvals",
+            "telegram_bot",
+            "auto_remediation",
+            "hitl_sha256",
+            "executive_cto_audits",
+            "air_gapped_runtime",
+            "priority_sla",
+            "custom_runbooks",
+            "dedicated_sre_escalation"
         ]
     },
     "agency": {
         "max_nodes": 500,
         "max_services": 150,
+        "mutating_actions": 1000,
         "max_workspaces": 10,
         "features": [
             "triage",
@@ -97,8 +132,9 @@ def generate_license(
     days: int,
     custom_nodes: int = None,
     custom_services: int = None,
+    custom_actions: int = None,
     key_path: Path = DEFAULT_KEY_PATH
-) -> str:
+) -> tuple[str, dict]:
     priv_key = load_master_private_key(key_path)
 
     tier_lower = tier.lower()
@@ -110,14 +146,16 @@ def generate_license(
     expires = now + timedelta(days=days)
 
     tier_defaults = TIER_CONFIG[tier_lower]
-    max_nodes = custom_nodes or tier_defaults["max_nodes"]
-    max_services = custom_services or tier_defaults["max_services"]
+    max_nodes = custom_nodes if custom_nodes is not None else tier_defaults["max_nodes"]
+    max_services = custom_services if custom_services is not None else tier_defaults["max_services"]
+    mutating_actions = custom_actions if custom_actions is not None else tier_defaults.get("mutating_actions", 0)
 
     payload = {
         "org": org,
         "tier": tier_lower,
         "max_nodes": max_nodes,
         "max_services": max_services,
+        "mutating_actions": mutating_actions,
         "features": tier_defaults["features"],
         "issued_at": now.isoformat(),
         "expires_at": expires.isoformat(),
@@ -138,9 +176,16 @@ def generate_license(
 def main():
     parser = argparse.ArgumentParser(description="Issue cryptographically signed Amber SRE Enterprise License Keys")
     parser.add_argument("--org", required=True, help="Organization / Client Name (e.g., 'Swiggy', 'Acme Corp')")
-    parser.add_argument("--tier", default="autonomous", choices=["community", "observe", "autonomous", "response", "agency"], help="Subscription Tier")
+    parser.add_argument(
+        "--tier",
+        default="autonomous",
+        choices=["community", "growth", "autonomous", "response", "enterprise", "agency"],
+        help="Subscription Tier"
+    )
     parser.add_argument("--days", type=int, default=30, help="License validity duration in days (e.g. 14, 30, 365)")
     parser.add_argument("--nodes", type=int, default=None, help="Custom node count override (optional)")
+    parser.add_argument("--services", type=int, default=None, help="Custom service count override (optional)")
+    parser.add_argument("--actions", type=int, default=None, help="Custom mutating action count override (optional)")
 
     args = parser.parse_args()
 
@@ -148,18 +193,22 @@ def main():
         org=args.org,
         tier=args.tier,
         days=args.days,
-        custom_nodes=args.nodes
+        custom_nodes=args.nodes,
+        custom_services=args.services,
+        custom_actions=args.actions
     )
 
     print("\n" + "=" * 68)
     print("🔑 AMBER ENTERPRISE LICENSE KEY GENERATED")
     print("=" * 68)
-    print(f"Organization : {payload['org']}")
-    print(f"Tier         : {payload['tier'].upper()}")
-    print(f"Max Nodes    : {payload['max_nodes']}")
-    print(f"Issued At    : {payload['issued_at']}")
-    print(f"Expires At   : {payload['expires_at']} ({args.days} days)")
-    print(f"Features     : {', '.join(payload['features'])}")
+    print(f"Organization     : {payload['org']}")
+    print(f"Tier             : {payload['tier'].upper()}")
+    print(f"Max Nodes        : {payload['max_nodes']}")
+    print(f"Max Services     : {payload['max_services']}")
+    print(f"Mutating Actions : {payload['mutating_actions']} / mo")
+    print(f"Issued At        : {payload['issued_at']}")
+    print(f"Expires At       : {payload['expires_at']} ({args.days} days)")
+    print(f"Features         : {', '.join(payload['features'])}")
     print("-" * 68)
     print("Add this to the client's .env file:")
     print(f"\nAMBER_LICENSE_KEY={token}\n")

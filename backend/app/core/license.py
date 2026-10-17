@@ -43,12 +43,14 @@ class LicenseManager:
             self.tier: str = "none"
             self.max_nodes: int = 0
             self.max_services: int = 0
+            self.mutating_actions: int = 0
         else:
             self.status: str = "community"
             self.org: str = "Community Edition"
             self.tier: str = "community"
             self.max_nodes: int = 3
             self.max_services: int = 5
+            self.mutating_actions: int = 0
         self.features: list[str] = [
             "triage", 
             "read_only", 
@@ -140,6 +142,7 @@ class LicenseManager:
             self.tier = payload.get("tier", "autonomous").lower()
             self.max_nodes = payload.get("max_nodes", 200)
             self.max_services = payload.get("max_services", 35)
+            self.mutating_actions = payload.get("mutating_actions", 0)
             self.features = payload.get("features", [])
             self.days_remaining = max(0, (expires_at - now).days)
             self.error_message = None
@@ -183,6 +186,7 @@ class LicenseManager:
             "tier": self.tier.upper(),
             "max_nodes": self.max_nodes,
             "max_services": self.max_services,
+            "mutating_actions": self.mutating_actions,
             "days_remaining": self.days_remaining,
             "expires_at": self.expires_at.isoformat() if self.expires_at else None,
             "features": self.features,
@@ -195,7 +199,7 @@ class LicenseManager:
         if self.is_valid:
             print("\n" + "=" * 70)
             print(f"💎 AMBER ENTERPRISE ACTIVE: Licensed to '{self.org}'")
-            print(f"📦 Tier: {self.tier.upper()} | Limit: {self.max_nodes} Nodes, {self.max_services} Services")
+            print(f"📦 Tier: {self.tier.upper()} | Limit: {self.max_nodes} Nodes, {self.max_services} Services | {self.mutating_actions} Auto-Remediations/mo")
             print(f"⏳ Validity: {self.days_remaining} Days Remaining (Expires {self.expires_at.strftime('%Y-%m-%d')})")
             print("⚡ Multi-Channel Engine: Slack, Telegram & HITL Approvals UNLOCKED")
             print("=" * 70 + "\n")
