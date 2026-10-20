@@ -187,18 +187,20 @@ Amber inspects its runtime environment on startup and binds the matching orchest
 
 ## Subscription Tiers & Predictable Economics
 
-| Metric / Capability | Community Tier (Free Forever) | Autonomous Tier ($2,299/mo) | Response Tier ($4,299/mo) |
-| :--- | :--- | :--- | :--- |
-| **Target Scale** | Test clusters & development teams | Production clusters & growing fleets | Enterprise multi-cloud infrastructure |
-| **Managed Nodes** | Up to 3 Active Nodes | Up to 100 Cloud / K8s Nodes | Unlimited Fleet Scale |
-| **Production Services** | Up to 5 Services | Up to 35 Services | Unlimited Services |
-| **Data Boundary** | 100% In-VPC (Zero Egress) | 100% In-VPC (Zero Egress) | 100% In-VPC (Air-Gapped) |
-| **Sentinel Heartbeat** | Continuous 24/7 Heartbeat | Continuous 24/7 Heartbeat | Continuous 24/7 Heartbeat |
-| **Noise Filtering** | Transient Glitch Shield ON | Transient Glitch Shield ON | Multi-VPC Incident Correlation |
-| **Smart Log Pruner** | Blackbox Flight Recorder (±120s) | Blackbox Flight Recorder (±120s) | Custom Retention Schedules |
-| **Automated Actions** | 10 Verified HITL Actions/mo | 100 Included Mutating Actions/mo | 500 Included Mutating Actions/mo |
-| **Pricing** | $0 (No Key Required) | $2,299/mo (Annual) or $2,499/mo | $4,299/mo (Annual) or $4,499/mo |
-| **Support SLA** | GitHub Community Discussions | Private Slack Connect Channel | Dedicated SRE Incident Escalation Bridge |
+| Metric / Capability | Community Tier (Free Forever) | Growth Tier ($2,499/mo) | Autonomous Tier ($5,999/mo) | Sovereign Tier ($11,999/mo) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Target Scale** | Test clusters & homelabs | Growth-stage startups | Production microservices fleets | Regulated FinTech, Banks & HealthTech |
+| **Managed Nodes** | Up to 3 Active Nodes | Up to 50 Cloud / K8s Nodes | Up to 250 Cloud / K8s Nodes | Unlimited Multi-VPC Fleet Scale |
+| **Production Services** | Up to 5 Services | Up to 25 Services | Unlimited Services | Unlimited Services |
+| **Data Boundary** | 100% In-VPC (Zero Egress) | 100% In-VPC (Zero Egress) | 100% In-VPC (Zero Egress) | 100% In-VPC (Air-Gapped Sovereign) |
+| **Sentinel Heartbeat** | Continuous 24/7 Heartbeat | Continuous 24/7 Heartbeat | Continuous 24/7 Heartbeat | Continuous 24/7 Heartbeat |
+| **Noise Filtering** | Transient Glitch Shield ON | Transient Glitch Shield ON | Multi-VPC Incident Correlation | Dedicated Driver Filtering Matrix |
+| **Smart Log Pruner** | Blackbox Flight Recorder (±120s) | Blackbox 60%+ Cloud Cut | 90% High-Throughput Log Cut | Air-Gapped Surgical Retention |
+| **Automated Actions** | Read-Only Triage & Proof | 150 Included Mutating Actions/mo | 500 Included Mutating Actions/mo | Unlimited Autonomous Actions |
+| **PR Auto-Drafting** | No | No | Verified GitHub/GitLab Bug-fix PRs | Monorepo & Bespoke Arch PRs |
+| **Audits & Digests** | Markdown Post-Mortems | Markdown Post-Mortems | Weekly Ed25519 Signed PDFs | Compliance & Board Audit Packs |
+| **Pricing (USD / INR)** | $0 (Free Forever) | $2,499/mo (₹2.1L/mo annual) | $5,999/mo (₹5.0L/mo annual) | $11,999/mo (₹10.0L/mo annual) |
+| **Support SLA** | GitHub Community Discussions | Email & Slack Support | 4-hr SLA & Dedicated SRE Bridge | Contractual Sub-10s MTTR Guarantee |
 
 ---
 

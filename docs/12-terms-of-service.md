@@ -26,29 +26,42 @@ To guarantee deterministic system latency (<100ms webhook ingestion, <3s triage)
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
 │                               AMBER SUBSCRIPTION TIERS                                 │
 ├─────────────────────┬──────────────────────────┬───────────────────────────────────────┤
-│ TIER / COMMITMENT   │ PRICING (USD)            │ INFRASTRUCTURE & EXECUTION LIMITS     │
+│ TIER / COMMITMENT   │ PRICING (USD / INR)      │ INFRASTRUCTURE & EXECUTION LIMITS     │
 ├─────────────────────┼──────────────────────────┼───────────────────────────────────────┤
 │ COMMUNITY TIER      │ • $0 / Month             │ • Up to 5 Production Microservices   │
-│ (Self-Hosted,       │ • Free Forever           │ • Up to 15 Kubernetes / Cloud Nodes   │
+│ (Self-Hosted,       │ • Free Forever           │ • Up to 3 Kubernetes / Cloud Nodes    │
 │  Air-Gapped SRE)    │   Zero License Key Req   │ • 1,000 alerts / month                │
 │                     │                          │ • Alert Storm Deduplication (< 80ms)  │
 │                     │                          │ • Deterministic RCA Proof Blocks      │
 │                     │                          │ • Read-Only IAM Diagnostics           │
-│                     │                          │ • 50+ Built-in Runbooks & Local Ollama│
+│                     │                          │ • Built-in Runbooks & Local Ollama    │
 ├─────────────────────┼──────────────────────────┼───────────────────────────────────────┤
-│ LEVEL 1: AUTONOMOUS │ • Monthly: $2,499/mo     │ • Up to 35 Production Microservices   │
-│ (Automated Fixes)   │ • Annual: $2,099/mo      │ • Up to 100 Kubernetes / Cloud Nodes  │
-│                     │   (Billed $25,188/yr)    │ • Unlimited Alert Ingestion           │
-│                     │                          │ • 100 Included Mutating Actions / mo  │
-│                     │                          │ • Multi-Channel HITL (Slack/TG/WA)    │
-│                     │                          │ • Offline Ed25519 License Validation  │
+│ GROWTH TIER         │ • Monthly: $2,999/mo     │ • Up to 25 Production Microservices  │
+│ (Self-Healing)      │   (₹2,50,000 / mo)       │ • Up to 50 Kubernetes / Cloud Nodes   │
+│                     │ • Annual: $2,499/mo      │ • Unlimited Alert Ingestion           │
+│                     │   ($29,988/yr / ₹25.2L)  │ • 150 Included Mutating Actions / mo  │
+│                     │                          │ • Flapping Shield & 60% Log Cut       │
+│                     │                          │ • 1-Click HITL (Slack & Telegram)     │
 ├─────────────────────┼──────────────────────────┼───────────────────────────────────────┤
-│ LEVEL 2: RESPONSE   │ • Monthly: $4,499/mo     │ • Custom / Unlimited Microservices    │
-│ (Enterprise Response│ • Annual: $3,699/mo      │ • Up to 500 Kubernetes / Cloud Nodes │
-│  & SRE Escalation)  │   (Billed $44,388/yr)    │ • 500 High-Volume Remediations / mo   │
-│                     │                          │ • < 15-min Incident Bridge Escalation │
-│                     │                          │ • Full White-Glove Runbook Eng        │
-│                     │                          │ • Strictly Limited to 5 Design Orgs   │
+│ LEVEL 1: AUTONOMOUS │ • Monthly: $6,899/mo     │ • Unlimited Production Microservices  │
+│ (Autonomous Fleet)  │   (₹5,80,000 / mo)       │ • Up to 250 Kubernetes / Cloud Nodes  │
+│                     │ • Annual: $5,999/mo      │ • Unlimited Alert Ingestion           │
+│                     │   ($71,988/yr / ₹60.0L)  │ • 500 Included Mutating Actions / mo  │
+│                     │                          │ • Full DB Draining & Auto-PR Drafting │
+│                     │                          │ • Air-Gapped Local Ollama (0 Egress)  │
+│                     │                          │ • Weekly Ed25519 Signed Audit PDFs    │
+├─────────────────────┼──────────────────────────┼───────────────────────────────────────┤
+│ LEVEL 2: SOVEREIGN  │ • Monthly: $13,999/mo    │ • Unlimited Microservices & Fleets    │
+│ (FinTech / Critical)│   (₹11,80,000 / mo)      │ • Unlimited Kubernetes / Cloud Nodes  │
+│                     │ • Annual: $11,999/mo     │ • Unlimited High-Volume Remediations  │
+│                     │   ($143,988/yr / ₹1.20Cr)│ • Contractual Sub-10s MTTR Guarantee  │
+│                     │                          │ • Custom Drivers & Bare-Metal IPC     │
+│                     │                          │ • Named Principal SRE (15-min Hotline)│
+├─────────────────────┼──────────────────────────┼───────────────────────────────────────┤
+│ AGENCY PARTNER      │ • Monthly: $600/client/mo│ • 100% White-Label (Custom Domain)    │
+│ (White-Label MSP)   │   (₹50,000 / mo)         │ • 15 Services & 25 Nodes per Client   │
+│                     │ • Annual: $500/client/mo │ • 🎁 Buy 5 Clients, 6th Client FREE   │
+│                     │   (₹40,000 / mo)         │ • White-Labeled Signed PDF Uptime     │
 └─────────────────────┴──────────────────────────┴───────────────────────────────────────┘
 ```
 
