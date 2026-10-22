@@ -116,6 +116,9 @@ def main():
     p_prune_alias = subparsers.add_parser("prune-logs", help="Alias for log-pruner")
     p_prune_alias.add_argument("action", choices=["enable", "disable", "status", "on", "off"], help="Pruner action")
 
+    # Command: setup (Community default)
+    subparsers.add_parser("setup", help="Run interactive terminal setup wizard")
+
     # Command: community setup
     p_comm = subparsers.add_parser("community", help="Amber Free Community Edition commands")
     p_comm.add_argument("subaction", nargs="?", default="setup", choices=["setup"], help="Community action")
@@ -126,7 +129,7 @@ def main():
 
     args = parser.parse_args()
 
-    if args.command == "community":
+    if args.command in ("community", "setup"):
         from scripts.setup_wizards import run_community_setup
         run_community_setup()
     elif args.command == "commercial":
