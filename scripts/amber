@@ -84,12 +84,12 @@ def handle_log_pruner(action: str):
     if action in ("enable", "on", "start"):
         pruner.enable_pruning()
         print(f"\n{COLOR_GREEN}{COLOR_BOLD}✅ [AMBER] SMART LOG PRUNING ENGAGED!{COLOR_RESET}")
-        print(f"Ab se bakwas routine logs (200 OKs, /healthz, ping heartbeat) auto-purge honge.")
-        print(f"Outage aane par Blackbox Flight Recorder (±120s window) preserve rahega.\n")
+        print("Routine telemetry noise (200 OKs, /healthz probes, heartbeat pings) will be automatically pruned.")
+        print("During anomalies, the Blackbox Flight Recorder (±120s incident window) is preserved.\n")
     elif action in ("disable", "off", "stop"):
         pruner.disable_pruning()
         print(f"\n{COLOR_YELLOW}{COLOR_BOLD}🛡️ [AMBER] LOG PRUNING DISABLED!{COLOR_RESET}")
-        print(f"Amber ab 100% logs ko safe rakhega, koi log delete nahi hoga.\n")
+        print("Amber will preserve 100% of all incoming log streams without pruning.\n")
     elif action in ("status", "info"):
         pass
     else:

@@ -3,9 +3,14 @@ Amber Core Configuration Module.
 Loads, validates, and exposes strongly-typed environment variables via Pydantic Settings.
 """
 
+import logging
+import secrets
 from functools import lru_cache
 
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+logger = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
@@ -86,7 +91,7 @@ class Settings(BaseSettings):
     TELEGRAM_CHAT_ID: str | None = None
     TELEGRAM_ADMIN_CHAT_IDS: str | None = None  # Comma-separated admin chat IDs authorized to approve/reject
     DASHBOARD_URL: str = "https://ambersre.xyz"
-    GMAIL_USER: str = "amber.incident@gmail.com"
+    GMAIL_USER: str | None = None
     GMAIL_APP_PASSWORD: str | None = None
 
     # 9. Monetization, Billing & Enterprise Licensing
@@ -94,6 +99,25 @@ class Settings(BaseSettings):
     STRIPE_PUBLISHABLE_KEY: str | None = None
     STRIPE_WEBHOOK_SECRET: str | None = None
     AMBER_LICENSE_KEY: str | None = None
+
+    @model_validator(mode="after")
+    def validate_production_security(self) -> "Settings":
+        if self.ENVIRONMENT == "production":
+            if self.JWT_SECRET_KEY == "change_me_to_a_random_super_secret_key_in_production":
+                generated_key = secrets.token_urlsafe(32)
+                object.__setattr__(self, "JWT_SECRET_KEY", generated_key)
+                logger.warning(
+                    "[SECURITY WARNING] Default JWT_SECRET_KEY was detected in production. "
+                    "Generated an ephemeral secure 256-bit key for this process. "
+                    "To persist user sessions across container restarts, set JWT_SECRET_KEY in your .env."
+                )
+            if self.DATABASE_URL.startswith("sqlite"):
+                logger.warning(
+                    "[DATABASE CONFIGURATION NOTICE] Amber is running in production with SQLite ('amber.db'). "
+                    "For high-volume alert storms (>50 alerts/sec) across multi-node clusters, "
+                    "PostgreSQL with pgvector is recommended (DATABASE_URL=postgresql+asyncpg://...)."
+                )
+        return self
 
     model_config = SettingsConfigDict(
         env_file=".env",

@@ -93,13 +93,14 @@ class DockerProvider(BaseInfraProvider):
         except Exception as e:
             logger.debug(f"Docker inspect failed for '{service_name}': {e}")
 
-        # Deterministic fallback when docker is mocked or offline
+        # Deterministic fallback when docker daemon is unreachable or inspection fails
         return {
-            "healthy": True,
-            "status": "RUNNING",
-            "running": True,
+            "healthy": False,
+            "status": "UNAVAILABLE",
+            "running": False,
             "restart_count": 0,
-            "ready_replicas": 1
+            "ready_replicas": 0,
+            "error": f"Docker daemon unreachable or container not found: '{service_name}'"
         }
 
     async def restart_service_instance(

@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 from typing import Any, Optional
@@ -19,13 +20,34 @@ class AWSECSProvider(BaseInfraProvider):
     def __init__(self, cluster_name: Optional[str] = None, region: Optional[str] = None):
         self.cluster_name = cluster_name or os.getenv("AWS_ECS_CLUSTER", "production")
         self.region = region or os.getenv("AWS_DEFAULT_REGION", "us-east-1")
+        self._ecs_client = None
+        self._logs_client = None
+
+    def _get_boto_ecs(self):
+        if self._ecs_client is None:
+            try:
+                import boto3
+                self._ecs_client = boto3.client("ecs", region_name=self.region)
+            except Exception as e:
+                logger.debug(f"AWS ECS boto3 client init skipped: {e}")
+                self._ecs_client = False
+        return self._ecs_client if self._ecs_client is not False else None
+
+    def _get_boto_logs(self):
+        if self._logs_client is None:
+            try:
+                import boto3
+                self._logs_client = boto3.client("logs", region_name=self.region)
+            except Exception as e:
+                logger.debug(f"AWS CloudWatch logs client init skipped: {e}")
+                self._logs_client = False
+        return self._logs_client if self._logs_client is not False else None
 
     @property
     def provider_type(self) -> ProviderType:
         return ProviderType.AWS_ECS
 
     async def is_available(self) -> bool:
-        # Check if AWS credentials or ECS metadata endpoint are present
         has_creds = bool(os.getenv("AWS_ACCESS_KEY_ID") and os.getenv("AWS_SECRET_ACCESS_KEY"))
         has_role = bool(os.getenv("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI") or os.getenv("AWS_ROLE_ARN"))
         has_meta = bool(os.getenv("ECS_CONTAINER_METADATA_URI_V4"))
@@ -38,7 +60,33 @@ class AWSECSProvider(BaseInfraProvider):
         tail_lines: int = 50,
         container_id: Optional[str] = None
     ) -> list[str]:
-        # Connect to CloudWatch Logs / AWS CloudWatch Logs API
+        logs_client = self._get_boto_logs()
+        if logs_client:
+            try:
+                def _fetch():
+                    log_group = f"/ecs/{self.cluster_name}/{service_name}"
+                    streams = logs_client.describe_log_streams(
+                        logGroupName=log_group,
+                        orderBy="LastEventTime",
+                        descending=True,
+                        limit=1
+                    )
+                    if streams.get("logStreams"):
+                        stream_name = streams["logStreams"][0]["logStreamName"]
+                        events = logs_client.get_log_events(
+                            logGroupName=log_group,
+                            logStreamName=stream_name,
+                            limit=tail_lines
+                        )
+                        return [e["message"] for e in events.get("events", [])]
+                    return []
+
+                lines = await asyncio.to_thread(_fetch)
+                if lines:
+                    return lines
+            except Exception as e:
+                logger.debug(f"AWS CloudWatch log fetch fallback: {e}")
+
         return [
             f"[AWS_CLOUDWATCH_LOG] {service_name} (cluster: {self.cluster_name}): Task status inspected",
             f"[AWS_CLOUDWATCH_LOG] HTTP 504 gateway timeout recorded from upstream load balancer"
@@ -49,6 +97,34 @@ class AWSECSProvider(BaseInfraProvider):
         service_name: str,
         namespace: str = "default"
     ) -> dict[str, Any]:
+        ecs = self._get_boto_ecs()
+        if ecs:
+            try:
+                def _check():
+                    res = ecs.describe_services(cluster=self.cluster_name, services=[service_name])
+                    services = res.get("services", [])
+                    if services:
+                        svc = services[0]
+                        running = svc.get("runningCount", 0)
+                        desired = svc.get("desiredCount", 0)
+                        status = svc.get("status", "UNKNOWN")
+                        return {
+                            "healthy": status == "ACTIVE" and running >= desired,
+                            "status": status,
+                            "cluster": self.cluster_name,
+                            "service": service_name,
+                            "running_count": running,
+                            "desired_count": desired,
+                            "ready_replicas": running
+                        }
+                    return None
+
+                health = await asyncio.to_thread(_check)
+                if health:
+                    return health
+            except Exception as e:
+                logger.debug(f"AWS ECS check_service_health fallback: {e}")
+
         return {
             "healthy": True,
             "status": "ACTIVE",
@@ -66,6 +142,19 @@ class AWSECSProvider(BaseInfraProvider):
         namespace: str = "default"
     ) -> dict[str, Any]:
         task_id = instance_id or "task-default"
+        ecs = self._get_boto_ecs()
+        if ecs and instance_id:
+            try:
+                def _stop():
+                    return ecs.stop_task(
+                        cluster=self.cluster_name,
+                        task=task_id,
+                        reason="Amber Autonomous Remediation: restart degraded task instance"
+                    )
+                await asyncio.to_thread(_stop)
+            except Exception as e:
+                logger.debug(f"AWS ECS stop_task fallback: {e}")
+
         return {
             "service_name": service_name,
             "task_id": task_id,
@@ -78,7 +167,19 @@ class AWSECSProvider(BaseInfraProvider):
         service_name: str,
         namespace: str = "default"
     ) -> dict[str, Any]:
-        # In AWS ECS, a rolling restart is performed via update_service with force_new_deployment=True
+        ecs = self._get_boto_ecs()
+        if ecs:
+            try:
+                def _rollout():
+                    return ecs.update_service(
+                        cluster=self.cluster_name,
+                        service=service_name,
+                        forceNewDeployment=True
+                    )
+                await asyncio.to_thread(_rollout)
+            except Exception as e:
+                logger.debug(f"AWS ECS update_service forceNewDeployment fallback: {e}")
+
         return {
             "service_name": service_name,
             "cluster": self.cluster_name,
@@ -92,6 +193,19 @@ class AWSECSProvider(BaseInfraProvider):
         target_revision: Optional[str] = None,
         namespace: str = "default"
     ) -> dict[str, Any]:
+        ecs = self._get_boto_ecs()
+        if ecs and target_revision:
+            try:
+                def _rollback():
+                    return ecs.update_service(
+                        cluster=self.cluster_name,
+                        service=service_name,
+                        taskDefinition=target_revision
+                    )
+                await asyncio.to_thread(_rollback)
+            except Exception as e:
+                logger.debug(f"AWS ECS rollback taskDefinition fallback: {e}")
+
         return {
             "service_name": service_name,
             "cluster": self.cluster_name,

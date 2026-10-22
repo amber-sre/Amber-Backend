@@ -65,7 +65,7 @@ Incoming Alert Streams (PagerDuty, Sentry, Datadog, CloudWatch, Prometheus)
   • Cryptographic Hash Bind        │
   • 10-Minute Expiry TTL           ▼
   • Re-Validation Pre-Execution  Autonomous Tool Runner
-  • SRE Approval via Web/Slack     │
+  • SRE Approval via Slack/Telegram/CLI │
        └─────────────┬─────────────┘
                      ▼
      Health Verification Probe (HTTP / SQL / Metric Check)

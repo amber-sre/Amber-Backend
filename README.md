@@ -50,6 +50,27 @@ Amber operates as an **autonomous remediation engine**:
 
 ---
 
+## 🎮 Intentionally Headless: Terminal CLI & ChatOps Control Plane
+
+> **SRE Reality:** At 3:00 AM during a Sev-1 outage, no on-call engineer wants to fumble with complex web portals, browser tabs, or SSO authenticators.
+
+Amber is designed from the ground up as a **Headless SRE Control Plane** across two primary operational surfaces:
+
+1. **📱 Mobile & ChatOps Command Hub (Slack & Telegram):**
+   * **Real-time Incident Cards:** Instant root-cause alert cards delivered to your team's on-call Slack channel or dedicated Telegram group.
+   * **1-Click Cryptographic Approvals:** For mutating actions (container restarts, deployment rollbacks, connection terminations), on-call SREs receive the cryptographically bound SHA-256 token with inline **`⚡ 1-Click Approve`** and **`❌ Reject`** buttons.
+   * **Interactive Bot Commands:** Query `/status`, `/incidents`, `/pending`, `/approve <id>`, and `/reject <id>` directly from mobile or desktop chat.
+
+2. **💻 In-VPC Terminal CLI (`amber` binary):**
+   * **Zero-Latency Cluster Management:** Run `amber status` to inspect active surveillance and infrastructure provider health.
+   * **Blackbox Log Pruning:** Toggle automated noise shredding via `amber log-pruner on` / `off` without leaving your shell.
+   * **Zero Browser Bloat:** All cluster configuration, setup wizards (`amber community setup`), and diagnostic checks run locally in the terminal.
+
+3. **🌐 Web Portal (`https://ambersre.xyz`):**
+   * High-level architectural documentation, fleet sizing ROI calculator, and executive reliability audit showcases. Real operational telemetry stays strictly inside your VPC.
+
+---
+
 ## In-VPC Privacy & Zero-Telemetry Boundary
 
 > **The Sovereign Principle:** Your infrastructure topology, credentials, queries, and logs must not leave your private VPC to train third-party models or sit in external multi-tenant storage.
