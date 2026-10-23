@@ -65,7 +65,8 @@ fi
 info "Installing Amber SRE in ${AMBER_DIR}..."
 if [[ -d "$AMBER_DIR/.git" ]]; then
     info "Found existing installation at ${AMBER_DIR}. Fetching latest updates..."
-    git -C "$AMBER_DIR" pull --ff-only || true
+    git -C "$AMBER_DIR" fetch --depth=1 origin main 2>/dev/null || git -C "$AMBER_DIR" fetch origin main || true
+    git -C "$AMBER_DIR" reset --hard origin/main 2>/dev/null || git -C "$AMBER_DIR" pull --ff-only || true
 else
     git clone "$REPO_URL" "$AMBER_DIR"
 fi
