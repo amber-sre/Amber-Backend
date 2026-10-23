@@ -74,13 +74,20 @@ cd "$AMBER_DIR"
 # ──────────────────────────────────────────────────────────────────────
 # Step 3: Set up Python Virtual Environment
 # ──────────────────────────────────────────────────────────────────────
-if [[ ! -d ".venv" ]]; then
+if [[ ! -d ".venv" ]] || [[ ! -f ".venv/bin/pip" ]]; then
     info "Creating Python virtual environment..."
-    "$PYTHON_CMD" -m venv .venv
+    rm -rf .venv 2>/dev/null || true
+    "$PYTHON_CMD" -m venv .venv || "$PYTHON_CMD" -m venv --without-pip .venv
 fi
 
 VENV_PY="${AMBER_DIR}/.venv/bin/python"
 VENV_PIP="${AMBER_DIR}/.venv/bin/pip"
+
+# Ensure pip is available inside venv
+if ! "$VENV_PY" -m pip --version &>/dev/null; then
+    info "Bootstrapping pip inside virtual environment..."
+    "$VENV_PY" -m ensurepip --upgrade 2>/dev/null || true
+fi
 
 info "Installing dependencies..."
 "$VENV_PIP" install --upgrade pip --quiet

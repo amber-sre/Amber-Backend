@@ -243,7 +243,13 @@ fi
 # Step 7: Interactive Setup Wizard (Community / Commercial, Ollama, Notifications)
 # ──────────────────────────────────────────────────────────────────────
 if [[ "$SKIP_LLM" == false ]]; then
-    if [ -f "scripts/setup_wizard.py" ]; then
+    if [ -f "scripts/setup_wizards.py" ]; then
+        if [ -e /dev/tty ]; then
+            python3 scripts/setup_wizards.py < /dev/tty || python3 scripts/setup_wizards.py || select_llm
+        else
+            python3 scripts/setup_wizards.py || select_llm
+        fi
+    elif [ -f "scripts/setup_wizard.py" ]; then
         if [ -e /dev/tty ]; then
             python3 scripts/setup_wizard.py < /dev/tty || python3 scripts/setup_wizard.py || select_llm
         else

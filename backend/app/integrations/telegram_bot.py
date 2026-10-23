@@ -643,8 +643,13 @@ async def handle_telegram_message(msg: dict[str, Any], token: str):
 
         welcome_text = (
             "⚡ <b>Amber SRE Autonomous Incident Engine</b>\n\n"
-            f"Welcome, @{html.escape(from_user)}! You are now <b>automatically enrolled</b> to receive real-time SRE incident alerts and 1-click approvals for this cluster.\n\n"
-            "<b>Available Commands:</b>\n"
+            f"Welcome, @{html.escape(from_user)}!\n\n"
+            f"🔑 <b>YOUR TELEGRAM RECEIVER ID:</b>\n"
+            f"<code>{chat_id}</code>\n"
+            "<i>(Tap the code above to copy it to clipboard)</i>\n\n"
+            "📋 <b>First-Time Setup:</b>\n"
+            "Paste this <b>Receiver ID</b> into your Amber CLI Terminal Setup Wizard to pair this chat with your cluster.\n\n"
+            "<b>Available Commands (Post-Pairing):</b>\n"
             "• /status — Cluster health, DB/Redis latency, active incidents\n"
             "• /incidents — View latest active incidents & severity\n"
             "• /pending — View remediations waiting for 1-Click approval\n"

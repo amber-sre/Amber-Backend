@@ -13,6 +13,7 @@ import shutil
 import threading
 import subprocess
 import webbrowser
+import asyncio
 from pathlib import Path
 from typing import List, Optional
 
@@ -214,6 +215,104 @@ def update_env_file(updates: dict):
         f.writelines(lines)
 
 
+def prompt_notifications_setup(details: dict, tier: str = "Community", max_nodes: int = 3, max_services: int = 3) -> dict:
+    """
+    Interactive On-Call & Notification Channel Setup.
+    Allows user to select Telegram, Slack, or both with zero-friction pairing:
+    • Telegram: User opens @ambersre_alert_bot, types /start, gets Receiver ID, pastes here. Instant verified handshake ping sent.
+    • Slack: User pastes Incoming Webhook URL. Instant test ping sent.
+    Returns dictionary of environment updates.
+    """
+    print(f"\n{CYAN}{BOLD}{'─' * 72}{RESET}")
+    print(f"{BOLD}🔔 Real-Time Incident On-Call Channels & 1-Click Approvals{RESET}\n")
+    print(f"Where do you want to receive real-time incident alerts and 1-click approvals?")
+
+    channel_options = [
+        "Telegram (@ambersre_alert_bot — 1-Click Mobile Remediation Approvals)",
+        "Slack (Incoming Webhook — Channel incident room alerts)",
+        "Both (Telegram + Slack)",
+        "Skip for now (Can be configured later)"
+    ]
+    chosen_channel = select_arrow_menu("Select notification channels:", channel_options, default_index=0)
+
+    env_updates = {}
+
+    # Setup Telegram
+    if chosen_channel in (0, 2):
+        print(f"\n{BOLD}📱 TELEGRAM RECEIVER SETUP (Zero-Bot Creation){RESET}")
+        print(f"  1. Open Telegram on your phone or desktop.")
+        print(f"  2. Search for our official bot: {BOLD}{CYAN}@ambersre_alert_bot{RESET}")
+        print(f"  3. Send: {BOLD}/start{RESET}")
+        print(f"  4. The bot will instantly give you your {BOLD}Telegram Receiver ID{RESET}.\n")
+
+        receiver_id = input(f"  {BOLD}Enter your Telegram Receiver ID (or press Enter to skip):{RESET} ").strip()
+
+        if receiver_id:
+            print(f"  {CYAN}⚡ Dispatching pairing handshake to Telegram...{RESET}")
+            from backend.app.integrations.telegram import send_telegram_pairing_handshake
+
+            bot_token = "8927729248:AAEcTTtjQY0ZOgK93ChuZ5K-KOO5iud5izI"
+            try:
+                success, msg = asyncio.run(send_telegram_pairing_handshake(
+                    chat_id=receiver_id,
+                    client_name=details.get("name", "SRE"),
+                    company=details.get("startup", "My Organization"),
+                    tier=tier,
+                    max_nodes=max_nodes,
+                    max_services=max_services,
+                    bot_token=bot_token
+                ))
+                if success:
+                    print(f"  {GREEN}{BOLD}✔ Handshake verified! Check your Telegram for confirmation.{RESET}")
+                    env_updates["TELEGRAM_BOT_TOKEN"] = bot_token
+                    env_updates["TELEGRAM_CHAT_ID"] = receiver_id
+                else:
+                    print(f"  {YELLOW}⚠️  Pairing notification failed: {msg}{RESET}")
+                    print(f"  {DIM}Saved Receiver ID anyway; you can verify later with /ping in bot.{RESET}")
+                    env_updates["TELEGRAM_BOT_TOKEN"] = bot_token
+                    env_updates["TELEGRAM_CHAT_ID"] = receiver_id
+            except Exception as e:
+                print(f"  {YELLOW}⚠️  Could not deliver handshake: {e}{RESET}")
+                env_updates["TELEGRAM_BOT_TOKEN"] = bot_token
+                env_updates["TELEGRAM_CHAT_ID"] = receiver_id
+        else:
+            print(f"  {YELLOW}[Skipped]{RESET} Telegram pairing skipped.\n")
+
+    # Setup Slack
+    if chosen_channel in (1, 2):
+        print(f"\n{BOLD}💬 SLACK WEBHOOK SETUP (Channel Broadcast){RESET}")
+        print(f"  1. Go to your Slack App Settings / Incoming Webhooks.")
+        print(f"  2. Add Webhook to your designated incident channel (e.g. #incident-ops).")
+        print(f"  3. Copy the Webhook URL (starts with https://hooks.slack.com/).\n")
+
+        slack_url = input(f"  {BOLD}Enter your Slack Webhook URL (or press Enter to skip):{RESET} ").strip()
+
+        if slack_url:
+            print(f"  {CYAN}⚡ Dispatching test alert card to Slack...{RESET}")
+            from backend.app.integrations.slack import send_slack_test_ping
+
+            try:
+                success, msg = asyncio.run(send_slack_test_ping(
+                    webhook_url=slack_url,
+                    client_name=details.get("name", "SRE"),
+                    company=details.get("startup", "My Organization"),
+                    tier=tier
+                ))
+                if success:
+                    print(f"  {GREEN}{BOLD}✔ Slack channel verified! Test card delivered.{RESET}")
+                    env_updates["SLACK_WEBHOOK_URL"] = slack_url
+                else:
+                    print(f"  {YELLOW}⚠️  Slack ping warning: {msg}{RESET}")
+                    env_updates["SLACK_WEBHOOK_URL"] = slack_url
+            except Exception as e:
+                print(f"  {YELLOW}⚠️  Could not deliver Slack ping: {e}{RESET}")
+                env_updates["SLACK_WEBHOOK_URL"] = slack_url
+        else:
+            print(f"  {YELLOW}[Skipped]{RESET} Slack setup skipped.\n")
+
+    return env_updates
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # 1. COMMUNITY EDITION SETUP WIZARD
 # ─────────────────────────────────────────────────────────────────────────────
@@ -259,17 +358,22 @@ def run_community_setup():
 
     run_model_download_with_progress(selected_model)
 
-    # 5. Persist Configuration
-    update_env_file({
+    # 5. Incident Notification Channel Setup (Telegram / Slack)
+    notif_updates = prompt_notifications_setup(details, tier="Community", max_nodes=3, max_services=3)
+
+    # 6. Persist Configuration
+    community_env = {
         "AMBER_EDITION": "community",
         "AMBER_OWNER_NAME": details["name"],
         "AMBER_OWNER_EMAIL": details["email"],
         "AMBER_VPC_NAME": details["vpc"],
         "AMBER_PROJECT_NAME": details["startup"],
         "OLLAMA_MODEL": selected_model
-    })
+    }
+    community_env.update(notif_updates)
+    update_env_file(community_env)
 
-    # 6. Final Community Free Tier Card
+    # 7. Final Community Free Tier Card
     print(f"\n{GREEN}{BOLD}{'═' * 72}")
     print("        🎉 AMBER COMMUNITY EDITION SETUP COMPLETED! 🎉")
     print(f"{'═' * 72}{RESET}\n")
@@ -394,7 +498,10 @@ def run_commercial_setup():
     render_progress_bar(f"Downloading {selected_model}", 100)
     print(f"\n  {GREEN}[✔ READY]{RESET} Model cached successfully.\n")
 
-    # 9. Persist Enterprise Environment
+    # 9. Incident Notification Channel Setup (Telegram / Slack)
+    notif_updates = prompt_notifications_setup(details, tier="Commercial Enterprise", max_nodes=999, max_services=999)
+
+    # 10. Persist Enterprise Environment
     env_updates = {
         "AMBER_EDITION": "enterprise",
         "AMBER_LICENSE_KEY": license_key or "amb_live_enterprise_active",
@@ -414,9 +521,10 @@ def run_commercial_setup():
         elif cloud_provider == "GEMINI":
             env_updates["GEMINI_API_KEY"] = cloud_api_key
 
+    env_updates.update(notif_updates)
     update_env_file(env_updates)
 
-    # 10. Enterprise Dashboard Completion
+    # 11. Enterprise Dashboard Completion
     print(f"\n{CYAN}{BOLD}{'═' * 72}")
     print("      💎 AMBER COMMERCIAL ENTERPRISE EDITION ACTIVATED! 💎")
     print(f"{'═' * 72}{RESET}\n")
@@ -430,3 +538,11 @@ def run_commercial_setup():
     print(f"  • Database Auto-Heal:     {GREEN if db_url else YELLOW}{'CONNECTED' if db_url else 'OPTIONAL'}{RESET}")
     print(f"  • SLA Guarantee:          {GREEN}24/7 Dedicated Autonomous SRE (Sub-30s MTTR){RESET}")
     print(f"{CYAN}{BOLD}{'═' * 72}{RESET}\n")
+
+
+if __name__ == "__main__":
+    mode = sys.argv[1].lower() if len(sys.argv) > 1 else "community"
+    if mode in ("commercial", "enterprise"):
+        run_commercial_setup()
+    else:
+        run_community_setup()
