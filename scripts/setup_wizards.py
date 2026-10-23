@@ -102,13 +102,34 @@ def check_and_install_dependencies():
 
 
 def prompt_user_details() -> dict:
-    """Interactively collects operator and cloud deployment identifiers."""
+    """Interactively collects and strictly validates operator and cloud deployment identifiers."""
     print(f"{BOLD}2. Operator & Cloud Environment Identifiers{RESET}\n")
-    
-    name = input(f"  {BOLD}Enter your Name:{RESET} ").strip() or "Himanshu"
-    email = input(f"  {BOLD}Enter your Work Email / Gmail:{RESET} ").strip() or "operator@amber.internal"
-    vpc = input(f"  {BOLD}Enter your Cluster / VPC Name (e.g., prod-vpc-us-east):{RESET} ").strip() or "prod-primary-vpc"
-    startup = input(f"  {BOLD}Enter your Startup / Company Name:{RESET} ").strip() or "Amber Cloud"
+
+    import re
+
+    while True:
+        name = input(f"  {BOLD}Enter your Name:{RESET} ").strip()
+        if len(name) >= 2:
+            break
+        print(f"  {RED}✖ Name must be at least 2 characters long.{RESET}")
+
+    while True:
+        email = input(f"  {BOLD}Enter your Work Email / Gmail:{RESET} ").strip()
+        if re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email):
+            break
+        print(f"  {RED}✖ Please enter a valid email address (e.g., engineer@company.com).{RESET}")
+
+    while True:
+        vpc = input(f"  {BOLD}Enter your Cluster / VPC Name (e.g., prod-vpc-us-east):{RESET} ").strip()
+        if len(vpc) >= 3:
+            break
+        print(f"  {RED}✖ VPC / Cluster name must be at least 3 characters long.{RESET}")
+
+    while True:
+        startup = input(f"  {BOLD}Enter your Startup / Company Name:{RESET} ").strip()
+        if len(startup) >= 2:
+            break
+        print(f"  {RED}✖ Company / Organization name must be at least 2 characters long.{RESET}")
 
     print(f"\n  {GREEN}✔ Profile configured for {BOLD}{name}{RESET} ({startup} / {vpc})\n")
     print(f"{CYAN}{'─' * 72}{RESET}\n")
@@ -451,17 +472,66 @@ def run_commercial_setup():
     # 3. Cryptographic License Verification
     print(f"{BOLD}3. Enterprise Cryptographic License Activation{RESET}\n")
     print(f"{DIM}Enter your single-use cryptographically signed license key (amb_live_...){RESET}")
-    license_key = input(f"  {BOLD}Enter Enterprise License Key:{RESET} ").strip()
 
-    # Verify key using LicenseManager
-    manager = LicenseManager(token=license_key if license_key else "amb_live_mock_trial_key")
-    if not manager.is_valid and license_key:
-        print(f"\n  {YELLOW}⚠️  Offline validation: Binding license key for organization '{details['startup']}'...{RESET}")
-    
+    import hashlib
+
+    # Hardware fingerprint for single-instance / VPC binding
+    hw_source = f"{os.uname().nodename}:{os.uname().machine}:{details.get('vpc', 'default')}"
+    hw_fingerprint = hashlib.sha256(hw_source.encode("utf-8")).hexdigest()[:16]
+
+    used_licenses_path = Path.home() / ".amber" / ".license_cache.json"
+
+    manager = None
+    license_key = ""
+
+    while True:
+        license_key = input(f"  {BOLD}Enter Enterprise License Key:{RESET} ").strip()
+        if not license_key:
+            print(f"  {RED}✖ Enterprise License Key is required for Commercial Edition.{RESET}\n")
+            continue
+
+        manager = LicenseManager(token=license_key)
+        if not manager.is_valid:
+            print(f"  {RED}✖ Invalid License Key: {manager.error_message}{RESET}")
+            print(f"  {YELLOW}Please enter a genuine, cryptographically signed enterprise key.{RESET}\n")
+            continue
+
+        # Single-Use Hardware / VPC Binding Check
+        license_hash = hashlib.sha256(license_key.encode("utf-8")).hexdigest()
+        cache = {}
+        if used_licenses_path.exists():
+            try:
+                with open(used_licenses_path, "r", encoding="utf-8") as f:
+                    cache = json.load(f)
+            except Exception:
+                cache = {}
+
+        bound_hw = cache.get(license_hash)
+        if bound_hw and bound_hw != hw_fingerprint:
+            print(f"\n  {RED}{BOLD}✖ LICENSE REUSE VIOLATION DETECTED!{RESET}")
+            print(f"  {RED}This single-use commercial key is already locked and bound to another node ({bound_hw}).{RESET}")
+            print(f"  {YELLOW}Each Amber Enterprise license key can only be activated on one cluster / instance.{RESET}\n")
+            continue
+
+        # Bind this key to this hardware instance
+        cache[license_hash] = hw_fingerprint
+        used_licenses_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(used_licenses_path, "w", encoding="utf-8") as f:
+            json.dump(cache, f, indent=2)
+
+        break
+
+    tier_name = manager.tier.upper() if manager and manager.tier else "ENTERPRISE"
+    max_nodes = manager.max_nodes if manager else "UNLIMITED"
+    days_left = manager.days_remaining if manager else 365
+    license_org = manager.org if manager and manager.org else details['startup']
+
     print(f"\n  {GREEN}{BOLD}✅ ENTERPRISE LICENSE VERIFIED & HARDWARE BOUND!{RESET}")
-    print(f"  {BOLD}• Tier:{RESET}            {CYAN}Commercial Enterprise Tier{RESET}")
-    print(f"  {BOLD}• Managed Nodes:{RESET}   {GREEN}UNLIMITED NODES UNLOCKED{RESET}")
-    print(f"  {BOLD}• Validity:{RESET}        {GREEN}365 Days Active Guarantee{RESET}")
+    print(f"  {BOLD}• Organization:{RESET}    {CYAN}{license_org}{RESET}")
+    print(f"  {BOLD}• Tier:{RESET}            {CYAN}{tier_name} Tier{RESET}")
+    print(f"  {BOLD}• Managed Nodes:{RESET}   {GREEN}Up to {max_nodes} Nodes Unlocked{RESET}")
+    print(f"  {BOLD}• Node Binding:{RESET}    {DIM}Hardware Lock: [{hw_fingerprint}]{RESET}")
+    print(f"  {BOLD}• Validity:{RESET}        {GREEN}{days_left} Days Active Guarantee{RESET}")
     print(f"  {BOLD}• Support SLA:{RESET}     {GREEN}24/7 Dedicated SRE SLA{RESET}\n")
     print(f"{CYAN}{'─' * 72}{RESET}\n")
 
