@@ -426,13 +426,29 @@ def run_community_setup():
     notif_updates = prompt_notifications_setup(details, tier="Community", max_nodes=3, max_services=3)
 
     # 6. Persist Configuration
+    import secrets
+    existing_wh_secret = os.getenv("WEBHOOK_SECRET")
+    env_path = repo_root / ".env"
+    if not existing_wh_secret and env_path.exists():
+        try:
+            with open(env_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    if line.startswith("WEBHOOK_SECRET="):
+                        existing_wh_secret = line.split("=", 1)[1].strip()
+                        break
+        except Exception:
+            pass
+    if not existing_wh_secret:
+        existing_wh_secret = f"amb_whsec_{secrets.token_hex(16)}"
+
     community_env = {
         "AMBER_EDITION": "community",
         "AMBER_OWNER_NAME": details["name"],
         "AMBER_OWNER_EMAIL": details["email"],
         "AMBER_VPC_NAME": details["vpc"],
         "AMBER_PROJECT_NAME": details["startup"],
-        "OLLAMA_MODEL": selected_model
+        "OLLAMA_MODEL": selected_model,
+        "WEBHOOK_SECRET": existing_wh_secret
     }
     community_env.update(notif_updates)
     update_env_file(community_env)
@@ -448,6 +464,26 @@ def run_community_setup():
     print(f"  • Local AI Engine:        {CYAN}{selected_model}{RESET}")
     print(f"  • Incident Auto-Heal:     {GREEN}Sub-60s Recovery Active{RESET}")
     print(f"  • Noise Filter:           {GREEN}Transient Glitch Shield ON{RESET}")
+
+    # Webhook Ingestion Gateway Card
+    print(f"\n{CYAN}{BOLD}{'─' * 72}")
+    print("📡 TELEMETRY & ALERT WEBHOOK GATEWAY (Port 8000)")
+    print(f"{'─' * 72}{RESET}")
+    print(f"  Send production alerts to Amber for autonomous triage & remediation:")
+    print(f"  • {BOLD}Generic HTTP Webhook:{RESET}      {CYAN}http://localhost:8000/api/v1/webhooks/generic{RESET}")
+    print(f"  • {BOLD}Prometheus / Grafana:{RESET}      {CYAN}http://localhost:8000/api/v1/webhooks/prometheus{RESET}")
+    print(f"  • {BOLD}Sentry Exception Stream:{RESET}   {CYAN}http://localhost:8000/api/v1/webhooks/sentry{RESET}")
+    print(f"  • {BOLD}Datadog Monitor Webhook:{RESET}   {CYAN}http://localhost:8000/api/v1/webhooks/datadog{RESET}")
+    print(f"  • {BOLD}CloudWatch Alarm Webhook:{RESET}  {CYAN}http://localhost:8000/api/v1/webhooks/cloudwatch{RESET}")
+    print(f"")
+    print(f"  {BOLD}Authentication Header:{RESET}")
+    print(f"  {YELLOW}X-Webhook-Secret: {existing_wh_secret}{RESET}  (or append ?token={existing_wh_secret})")
+    print(f"")
+    print(f"  {BOLD}⚡ Quick Test (Send a sample alert from another terminal):{RESET}")
+    print(f"  curl -X POST http://localhost:8000/api/v1/webhooks/generic \\")
+    print(f"    -H \"Content-Type: application/json\" \\")
+    print(f"    -H \"X-Webhook-Secret: {existing_wh_secret}\" \\")
+    print(f"    -d '{{\"title\": \"High Memory Alert\", \"message\": \"Worker pod memory > 92%\", \"severity\": \"P1\"}}'")
     print("-" * 72)
     print(f"{YELLOW}{BOLD}NEED MORE CAPACITY OR MULTI-VPC SCALE?{RESET}")
     print(f"  Agar aapke VPC me 3 se zyada nodes hain ya multi-cloud cluster hai:")
@@ -598,6 +634,21 @@ def run_commercial_setup():
     notif_updates = prompt_notifications_setup(details, tier="Commercial Enterprise", max_nodes=999, max_services=999)
 
     # 10. Persist Enterprise Environment
+    import secrets
+    existing_wh_secret = os.getenv("WEBHOOK_SECRET")
+    env_path = repo_root / ".env"
+    if not existing_wh_secret and env_path.exists():
+        try:
+            with open(env_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    if line.startswith("WEBHOOK_SECRET="):
+                        existing_wh_secret = line.split("=", 1)[1].strip()
+                        break
+        except Exception:
+            pass
+    if not existing_wh_secret:
+        existing_wh_secret = f"amb_whsec_{secrets.token_hex(16)}"
+
     env_updates = {
         "AMBER_EDITION": "enterprise",
         "AMBER_LICENSE_KEY": license_key or "amb_live_enterprise_active",
@@ -605,7 +656,8 @@ def run_commercial_setup():
         "AMBER_OWNER_EMAIL": details["email"],
         "AMBER_VPC_NAME": details["vpc"],
         "AMBER_PROJECT_NAME": details["startup"],
-        "OLLAMA_MODEL": selected_model
+        "OLLAMA_MODEL": selected_model,
+        "WEBHOOK_SECRET": existing_wh_secret
     }
     if db_url:
         env_updates["TARGET_DATABASE_URL"] = db_url
@@ -633,6 +685,26 @@ def run_commercial_setup():
     print(f"  • Hybrid AI Consensus:    {CYAN}{cloud_provider or 'Local Only'}{RESET}")
     print(f"  • Database Auto-Heal:     {GREEN if db_url else YELLOW}{'CONNECTED' if db_url else 'OPTIONAL'}{RESET}")
     print(f"  • SLA Guarantee:          {GREEN}24/7 Dedicated Autonomous SRE (Sub-30s MTTR){RESET}")
+
+    # Webhook Ingestion Gateway Card
+    print(f"\n{CYAN}{BOLD}{'─' * 72}")
+    print("📡 ENTERPRISE TELEMETRY & ALERT WEBHOOK GATEWAY (Port 8000)")
+    print(f"{'─' * 72}{RESET}")
+    print(f"  Send production alerts to Amber for autonomous triage & remediation:")
+    print(f"  • {BOLD}Generic HTTP Webhook:{RESET}      {CYAN}http://localhost:8000/api/v1/webhooks/generic{RESET}")
+    print(f"  • {BOLD}Prometheus / Grafana:{RESET}      {CYAN}http://localhost:8000/api/v1/webhooks/prometheus{RESET}")
+    print(f"  • {BOLD}Sentry Exception Stream:{RESET}   {CYAN}http://localhost:8000/api/v1/webhooks/sentry{RESET}")
+    print(f"  • {BOLD}Datadog Monitor Webhook:{RESET}   {CYAN}http://localhost:8000/api/v1/webhooks/datadog{RESET}")
+    print(f"  • {BOLD}CloudWatch Alarm Webhook:{RESET}  {CYAN}http://localhost:8000/api/v1/webhooks/cloudwatch{RESET}")
+    print(f"")
+    print(f"  {BOLD}Authentication Header:{RESET}")
+    print(f"  {YELLOW}X-Webhook-Secret: {existing_wh_secret}{RESET}  (or append ?token={existing_wh_secret})")
+    print(f"")
+    print(f"  {BOLD}⚡ Quick Test (Send a sample alert from another terminal):{RESET}")
+    print(f"  curl -X POST http://localhost:8000/api/v1/webhooks/generic \\")
+    print(f"    -H \"Content-Type: application/json\" \\")
+    print(f"    -H \"X-Webhook-Secret: {existing_wh_secret}\" \\")
+    print(f"    -d '{{\"title\": \"High Memory Alert\", \"message\": \"Worker pod memory > 92%\", \"severity\": \"P1\"}}'")
     print(f"{CYAN}{BOLD}{'═' * 72}{RESET}\n")
 
 

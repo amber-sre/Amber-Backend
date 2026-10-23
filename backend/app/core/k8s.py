@@ -8,13 +8,21 @@ Provides production-grade Kubernetes API integration for:
 Supports both in-cluster ServiceAccount auth and external Kubeconfig auth.
 """
 
+from __future__ import annotations
+
 import logging
 import os
 from datetime import datetime, timezone
 from typing import Any
 
-from kubernetes import client, config
-from kubernetes.client.rest import ApiException
+try:
+    from kubernetes import client, config
+    from kubernetes.client.rest import ApiException
+except ImportError:
+    client = None  # type: ignore
+    config = None  # type: ignore
+    class ApiException(Exception):  # type: ignore
+        pass
 
 from backend.app.core.config import settings
 
@@ -37,6 +45,10 @@ def init_k8s_client(context: str | None = None) -> tuple[client.CoreV1Api | None
     Initializes and caches Kubernetes API clients for a specific cluster context.
     Supports multi-cluster operations across distinct Kubernetes contexts.
     """
+    if client is None or config is None:
+        logger.debug("Kubernetes library not available in environment.")
+        return None, None
+
     cache_key = context or "__default__"
     if cache_key in _k8s_client_cache:
         return _k8s_client_cache[cache_key]
