@@ -34,6 +34,7 @@ MAGENTA = "\033[0;35m"
 DIM = "\033[2m"
 RESET = "\033[0m"
 CLEAR_SCREEN = "\033[2J\033[H"
+CLEAR_LINE = "\033[K"
 HIDE_CURSOR = "\033[?25l"
 SHOW_CURSOR = "\033[?25h"
 
@@ -47,8 +48,8 @@ def print_amber_animation():
         f"{GREEN}Autonomous Sentinel Ready.{RESET}",
     ]
     for frame in frames:
-        print(f"\r  {BOLD}⚡ {frame}{RESET}", end="", flush=True)
-        time.sleep(0.2)
+        print(f"\r  {BOLD}⚡ {frame}{RESET}{CLEAR_LINE}", end="", flush=True)
+        time.sleep(0.25)
     print("\n")
 
     logo = f"""
@@ -68,7 +69,7 @@ def render_progress_bar(task_name: str, percent: int, width: int = 30):
     """Draws a smooth ASCII progress bar with percentage."""
     filled = int(width * percent / 100)
     bar = "█" * filled + "░" * (width - filled)
-    print(f"\r  {CYAN}{task_name:<28}{RESET} [{GREEN}{bar}{RESET}] {BOLD}{percent:>3}%{RESET}", end="", flush=True)
+    print(f"\r  {CYAN}{task_name:<28}{RESET} [{GREEN}{bar}{RESET}] {BOLD}{percent:>3}%{RESET}\033[K", end="", flush=True)
 
 
 def check_and_install_dependencies():
@@ -480,23 +481,7 @@ def run_commercial_setup():
     chosen_idx = select_arrow_menu("4. Choose your Primary Local SRE Model:", model_options, default_index=0)
     selected_model = model_tags[chosen_idx]
 
-    # 5. Dual-Screen: Start Background Model Download
-    print(f"{CYAN}{BOLD}{'═' * 72}{RESET}")
-    print(f"{MAGENTA}{BOLD}⚡ Starting Local AI Engine download in background...{RESET}\n")
-
-    download_done = threading.Event()
-    download_progress = [0]
-
-    def bg_download():
-        def on_tick(pct):
-            download_progress[0] = pct
-        run_model_download_with_progress(selected_model, on_tick=on_tick)
-        download_done.set()
-
-    t = threading.Thread(target=bg_download, daemon=True)
-    t.start()
-
-    # 6. Interactive Cloud AI Hybrid Choice
+    # 5. Interactive Cloud AI Hybrid Choice
     cloud_choice = select_arrow_menu(
         "5. Do you want to enable Cloud AI (Claude 3.5 Sonnet, GPT-4o, Gemini 1.5 Pro) for hybrid consensus?",
         ["Yes (Enable secondary cloud LLM validation)", "No (Keep 100% private local inference)"],
@@ -522,7 +507,7 @@ def run_commercial_setup():
 
     print(f"{CYAN}{'─' * 72}{RESET}\n")
 
-    # 7. Database Connection Setup (Smooth Skip / Enter)
+    # 6. Database Connection Setup (Smooth Skip / Enter)
     print(f"{BOLD}6. Database Connection Setup (Direct SRE for DB){RESET}")
     print(f"Enter your Database URL (to enable Amber SRE auto-healing for your database):")
     db_url = input(f"{DIM}[Type URL and press Enter to save, or press Backspace / Enter empty to skip]{RESET} ➔ ").strip()
@@ -532,15 +517,14 @@ def run_commercial_setup():
     else:
         print(f"  {YELLOW}[Skipped]{RESET} Database auto-healing can be configured later in .env.\n")
 
-    # 8. Await model download completion
-    print(f"\n{CYAN}Finalizing local model cache...{RESET}")
-    while not download_done.is_set():
-        render_progress_bar(f"Downloading {selected_model}", download_progress[0])
-        time.sleep(0.1)
-    render_progress_bar(f"Downloading {selected_model}", 100)
-    print(f"\n  {GREEN}[✔ READY]{RESET} Model cached successfully.\n")
+    print(f"{CYAN}{'─' * 72}{RESET}\n")
 
-    # 9. Incident Notification Channel Setup (Telegram / Slack)
+    # 7. Model Download & Cache
+    print(f"{CYAN}{BOLD}{'═' * 72}{RESET}")
+    print(f"{MAGENTA}{BOLD}⚡ Initializing Local AI Engine: {selected_model}{RESET}\n")
+    run_model_download_with_progress(selected_model)
+
+    # 8. Incident Notification Channel Setup (Telegram / Slack)
     notif_updates = prompt_notifications_setup(details, tier="Commercial Enterprise", max_nodes=999, max_services=999)
 
     # 10. Persist Enterprise Environment
