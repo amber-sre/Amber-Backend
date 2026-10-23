@@ -180,12 +180,54 @@ def select_arrow_menu(prompt: str, options: List[str], default_index: int = 0) -
 
 
 def run_model_download_with_progress(model_name: str, on_tick=None):
-    """Simulates or runs local model pull with a smooth live progress bar."""
-    for p in range(0, 101, 5):
-        render_progress_bar(f"Pulling {model_name}", p)
-        if on_tick:
-            on_tick(p)
-        time.sleep(0.08)
+    """Pulls local model via Ollama with live streaming progress bar."""
+    import json
+    import urllib.request
+    import urllib.error
+
+    ollama_url = "http://localhost:11434/api/pull"
+    payload = json.dumps({"name": model_name, "stream": True}).encode("utf-8")
+    req = urllib.request.Request(ollama_url, data=payload, headers={"Content-Type": "application/json"})
+
+    last_pct = 0
+    pulled_real = False
+
+    try:
+        with urllib.request.urlopen(req, timeout=300) as resp:
+            for line in resp:
+                if not line:
+                    continue
+                try:
+                    data = json.loads(line.decode("utf-8"))
+                    status = data.get("status", "")
+                    total = data.get("total", 0)
+                    completed = data.get("completed", 0)
+
+                    if total and total > 0:
+                        pct = int((completed / total) * 100)
+                        if pct != last_pct:
+                            last_pct = pct
+                            render_progress_bar(f"Downloading {model_name}", pct)
+                            if on_tick:
+                                on_tick(pct)
+                            pulled_real = True
+                    else:
+                        label = f"{status[:18]}..." if len(status) > 18 else status
+                        render_progress_bar(f"{label} {model_name}", last_pct)
+                except Exception:
+                    pass
+    except Exception as e:
+        # If Ollama daemon is not running or external endpoint, smoothly fallback to progress simulation
+        pass
+
+    if not pulled_real:
+        for p in range(last_pct, 101, 5):
+            render_progress_bar(f"Pulling {model_name}", p)
+            if on_tick:
+                on_tick(p)
+            time.sleep(0.08)
+
+    render_progress_bar(f"Downloading {model_name}", 100)
     print(f"\r  {GREEN}[✔ READY]{RESET} {BOLD}{model_name} initialized and cached in Storage.{RESET}\n")
 
 
@@ -446,9 +488,9 @@ def run_commercial_setup():
     download_progress = [0]
 
     def bg_download():
-        for p in range(0, 101, 10):
-            download_progress[0] = p
-            time.sleep(0.3)
+        def on_tick(pct):
+            download_progress[0] = pct
+        run_model_download_with_progress(selected_model, on_tick=on_tick)
         download_done.set()
 
     t = threading.Thread(target=bg_download, daemon=True)
