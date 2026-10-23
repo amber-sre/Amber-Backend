@@ -121,6 +121,13 @@ ln -sf "${AMBER_DIR}/scripts/amber" "${HOME}/.local/bin/amber" 2>/dev/null || tr
 # Step 7: Launch Background Containers
 # ──────────────────────────────────────────────────────────────────────
 if command -v docker &>/dev/null; then
+    # Detect host Docker socket GID for container socket permissions
+    if [[ -S "/var/run/docker.sock" ]]; then
+        DOCKER_GID=$(stat -c '%g' /var/run/docker.sock 2>/dev/null || echo "0")
+        if ! grep -q "^DOCKER_GID=" .env 2>/dev/null; then
+            echo "DOCKER_GID=${DOCKER_GID}" >> .env
+        fi
+    fi
     info "Launching enterprise cluster services via Docker Compose..."
     docker compose up -d 2>/dev/null || true
 fi

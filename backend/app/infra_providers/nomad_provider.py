@@ -36,6 +36,24 @@ class NomadProvider(BaseInfraProvider):
         except Exception:
             return False
 
+    async def discover_services(self, namespace: str = "default") -> list[str]:
+        headers = {}
+        token = os.getenv("NOMAD_TOKEN")
+        if token:
+            headers["X-Nomad-Token"] = token
+        try:
+            async with httpx.AsyncClient(timeout=3.0) as client:
+                res = await client.get(f"{self.nomad_addr}/v1/jobs", headers=headers)
+                if res.status_code == 200:
+                    jobs = res.json()
+                    return [
+                        j.get("ID") for j in jobs
+                        if j.get("ID") and not j.get("ID").startswith("amber-") and j.get("Status") == "running"
+                    ]
+        except Exception as e:
+            logger.debug(f"[NOMAD DISCOVERY] Failed to list Nomad jobs: {e}")
+        return []
+
     async def fetch_service_logs(
         self,
         service_name: str,

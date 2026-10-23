@@ -4,6 +4,7 @@ from typing import Any, Optional
 from backend.app.core.k8s import (
     is_k8s_available,
     k8s_check_deployment_health,
+    k8s_discover_deployments,
     k8s_fetch_pod_logs,
     k8s_restart_pod,
     k8s_rollback_deployment,
@@ -29,6 +30,9 @@ class KubernetesProvider(BaseInfraProvider):
 
     async def is_available(self) -> bool:
         return is_k8s_available()
+
+    async def discover_services(self, namespace: str = "default") -> list[str]:
+        return k8s_discover_deployments(namespace=namespace)
 
     async def fetch_service_logs(
         self,

@@ -35,7 +35,7 @@ class SentinelWatcher:
         self.poll_interval = poll_interval_seconds
         self.noise_filter = noise_filter or NoiseFilter()
         self.log_pruner = log_pruner or get_log_pruner()
-        self.monitored_services = monitored_services or ["payment-service", "checkout-svc", "auth-svc"]
+        self.monitored_services = monitored_services or []
         self._is_running = False
         self._task: Optional[asyncio.Task] = None
 
@@ -71,7 +71,25 @@ class SentinelWatcher:
     async def check_orchestrator_services(self) -> None:
         """Inspects container / pod health across active infrastructure provider."""
         provider = get_infra_provider()
-        for service in self.monitored_services:
+
+        # 1. Dynamically discover all active client services/containers
+        discovered = []
+        try:
+            discovered = await provider.discover_services()
+        except Exception as e:
+            logger.debug(f"[SENTINEL] Dynamic service discovery warning: {e}")
+
+        # Combine explicitly passed services with auto-discovered services
+        all_services = list(dict.fromkeys((self.monitored_services or []) + (discovered or [])))
+
+        # Safety: Never monitor Amber's own internal management services to prevent self-recursion
+        targets = [s for s in all_services if not s.startswith("amber-")]
+
+        if not targets:
+            logger.debug("[SENTINEL] No external client services/containers detected on node.")
+            return
+
+        for service in targets:
             try:
                 health = await provider.check_service_health(service_name=service)
                 status = health.get("status", "").upper()
@@ -81,7 +99,7 @@ class SentinelWatcher:
                 logs = await provider.fetch_service_logs(service_name=service, tail_lines=20)
                 self.log_pruner.ingest_log_batch(service, logs)
 
-                if not is_healthy or status in ("OOMKILLED", "CRASHLOOP", "FAILED"):
+                if not is_healthy or status in ("OOMKILLED", "CRASHLOOP", "FAILED", "DEAD"):
                     anomaly = AnomalyType.OOMKILLED if status == "OOMKILLED" else AnomalyType.CRASHLOOP
                     event = self.noise_filter.evaluate_event(
                         service_name=service,

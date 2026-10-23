@@ -53,6 +53,19 @@ class AWSECSProvider(BaseInfraProvider):
         has_meta = bool(os.getenv("ECS_CONTAINER_METADATA_URI_V4"))
         return has_creds or has_role or has_meta
 
+    async def discover_services(self, namespace: str = "default") -> list[str]:
+        client = self._get_boto_ecs()
+        if not client:
+            return []
+        try:
+            loop = asyncio.get_running_loop()
+            res = await loop.run_in_executor(None, lambda: client.list_services(cluster=self.cluster_name))
+            service_arns = res.get("serviceArns", [])
+            return [arn.split("/")[-1] for arn in service_arns if not arn.split("/")[-1].startswith("amber-")]
+        except Exception as e:
+            logger.debug(f"[ECS DISCOVERY] Failed to list ECS services: {e}")
+            return []
+
     async def fetch_service_logs(
         self,
         service_name: str,

@@ -152,6 +152,27 @@ def k8s_deployment_exists(deployment_name: str, namespace: str = "production", c
         return True
 
 
+def k8s_discover_deployments(namespace: str = "default", context: str | None = None) -> list[str]:
+    """
+    Dynamically discovers all active client Deployments in the target namespace.
+    Filters out Amber's internal management services.
+    """
+    _, apps_api = init_k8s_client(context=context)
+    if not apps_api:
+        return []
+    try:
+        deps = apps_api.list_namespaced_deployment(namespace=namespace)
+        discovered = []
+        for d in deps.items:
+            name = d.metadata.name if d.metadata else None
+            if name and not name.startswith("amber-"):
+                discovered.append(name)
+        return discovered
+    except Exception as e:
+        logger.debug(f"[K8S DISCOVERY] Failed to list deployments in '{namespace}': {e}")
+        return []
+
+
 def k8s_pod_exists(pod_name: str, namespace: str = "production", context: str | None = None) -> bool:
     """Checks if a named Pod actually exists in the live Kubernetes cluster."""
     core_api, _ = init_k8s_client(context=context)

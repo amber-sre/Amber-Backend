@@ -32,6 +32,27 @@ class SystemdProvider(BaseInfraProvider):
         except Exception:
             return False
 
+    async def discover_services(self, namespace: str = "default") -> list[str]:
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                "systemctl", "list-units", "--type=service", "--state=running,failed", "--no-legend", "--no-pager",
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=3.0)
+            if proc.returncode == 0:
+                services = []
+                for line in stdout.decode("utf-8").splitlines():
+                    parts = line.split()
+                    if parts:
+                        name = parts[0]
+                        if not name.startswith("amber-") and not name.startswith("systemd-"):
+                            services.append(name.replace(".service", ""))
+                return services[:50]  # Cap to prevent inspection explosion
+        except Exception as e:
+            logger.debug(f"[SYSTEMD DISCOVERY] Failed to list systemd units: {e}")
+        return []
+
     async def fetch_service_logs(
         self,
         service_name: str,

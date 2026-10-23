@@ -40,6 +40,14 @@ class BaseInfraProvider(ABC):
         pass
 
     @abstractmethod
+    async def discover_services(self, namespace: str = "default") -> list[str]:
+        """
+        Dynamically discovers all running containers or services managed by this provider.
+        Excludes Amber's own internal management services.
+        """
+        pass
+
+    @abstractmethod
     async def fetch_service_logs(
         self,
         service_name: str,
